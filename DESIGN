@@ -1,20 +1,24 @@
 # -*- mode: Org -*-
 
-   cache loader
-        |
-        v
-main (cache) -> watcher
- |                |
- |------------> walker -> event handlers
- |------------> walker -> event handlers
- |------------> walker -> event handlers
- .
- .
- .
-
+             cache loader
+                  |
+                  v
+config -> main (cache) -> watcher
+           |                |
+           |                | /-- filters
+           |                | |
+           |                v v
+           |-------------> walker -> event handlers
+           |-------------> walker -> event handlers
+           |-------------> walker -> event handlers
+           .
+           .
+           .
+          
 * Remarks:
 ** main: glues each part together. Loads the cache, maintains a walker thread
    pool, and instantiates the watcher.
+** config: loads all the configurations, like thread pool size, etc.
 ** cache loaders: imports different types of catalog into the cache, mapping the
    input catalog format to the in-memory cache data structure.
 ** watcher: registers itself with the kernel notification service (inotify,
@@ -22,5 +26,8 @@ main (cache) -> watcher
 ** walkers: each walker is a single thread that handles a range of
    directories. Range size for a single walker can be configured. When a change
    has been detected, invoke the corresponding event handlers.
+** filters: filters out the files/directories the user is not interested in.
+   So uninteresting objects will be skipped automatically without invoking the
+   event handlers.
 ** event handlers: multiple event handlers can be registered, each handles a
    certain kind of event (file creation, deletion, attribute change, etc.).
