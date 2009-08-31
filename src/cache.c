@@ -25,9 +25,19 @@
 #include "cache.h"
 
 falcon_cache_t *falcon_cache_new(void) {
-
+	falcon_cache_t *cache = g_new0(falcon_cache_t, 1);
+	cache->lock = g_mutex_new();
+	cache->objects = g_queue_new();
+	return cache;
 }
 
 void falcon_cache_free(falcon_cache_t *cache) {
+	falcon_object_t *object = NULL;
 
+	while (object = g_queue_pop_head(cache->objects)) {
+		falcon_object_free(object);
+	}
+	g_queue_free(cache->objects);
+	g_mutex_free(cache->lock);
+	g_free(cache);
 }

@@ -32,7 +32,7 @@
 typedef struct {
 	GMutex *lock;
 	time_t time;
-	GSList *objects;
+	GQueue *objects;
 } falcon_cache_t;
 
 falcon_cache_t *falcon_cache_new(void);
