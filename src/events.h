@@ -41,4 +41,6 @@ typedef enum {
 	EVENT_FILE_MOVED
 } falcon_event_code_t;
 
+inline const gchar *falcon_event_to_string(falcon_event_code_t event);
+
 #endif

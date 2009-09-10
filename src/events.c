@@ -22,29 +22,37 @@
  * THE SOFTWARE.
  */
 
-#ifndef _OBJECT_H_
-#define _OBJECT_H_
-
-#include <sys/types.h>
 #include <glib.h>
 
-#include "common.h"
+#include "events.h"
 
-/*
- * Only one thread will modify a single object at a time, so there's no need to
- * lock it.
- */
-typedef struct {
-	mode_t mode;
-	off_t size;
-	time_t time;
-	gchar *name;
-} falcon_object_t;
-
-/*
- * If name is not NULL, it must be a NULL-terminated string.
- */
-falcon_object_t *falcon_object_new(const gchar *name);
-void falcon_object_free(falcon_object_t *object);
-
-#endif
+const gchar *falcon_event_to_string(falcon_event_code_t event) {
+	switch (event) {
+	case EVENT_DIR_CREATED:
+		return "EVENT_DIR_CREATED";
+		break;
+	case EVENT_DIR_DELETED:
+		return "EVENT_DIR_DELETED";
+		break;
+	case EVENT_DIR_CHANGED:
+		return "EVENT_DIR_CHANGED";
+		break;
+	case EVENT_DIR_MOVED:
+		return "EVENT_DIR_MOVED";
+		break;
+	case EVENT_FILE_CREATED:
+		return "EVENT_FILE_CREATED";
+		break;
+	case EVENT_FILE_DELETED:
+		return "EVENT_FILE_DELETED";
+		break;
+	case EVENT_FILE_CHANGED:
+		return "EVENT_FILE_CHANGED";
+		break;
+	case EVENT_FILE_MOVED:
+		return "EVENT_FILE_MOVED";
+		break;
+	default:
+		return "Unknown";
+	}
+}

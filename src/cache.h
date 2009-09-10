@@ -31,11 +31,24 @@
 
 typedef struct {
 	GMutex *lock;
-	time_t time;
 	GQueue *objects;
 } falcon_cache_t;
 
 falcon_cache_t *falcon_cache_new(void);
 void falcon_cache_free(falcon_cache_t *cache);
+
+/*
+ * Gets the object with the given name. If the object is not found, return NULL.
+ */
+falcon_object_t *falcon_cache_get_object(falcon_cache_t *cache,
+                                         const gchar *name);
+/*
+ * Adds an object to the cache. If another object with the same name exists, the
+ * old one is updated with the new one.
+ */
+gboolean falcon_cache_add_object(falcon_cache_t *cache,
+                                 falcon_object_t *object);
+gboolean falcon_cache_delete_object(falcon_cache_t *cache,
+                                    falcon_object_t *object);
 
 #endif

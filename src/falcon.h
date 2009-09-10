@@ -39,4 +39,6 @@
  */
 void falcon_walker_return(GQueue *objects, GError *error);
 
+void falcon_add_task(falcon_object_t *object);
+
 #endif

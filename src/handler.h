@@ -28,6 +28,26 @@
 #include "common.h"
 #include "object.h"
 
-void falcon_event_handler(falcon_object_t *object, falcon_event_code_t event);
+gboolean (*falcon_handler_func)(falcon_object_t *object,
+                                falcon_event_code_t event);
+
+gboolean falcon_handler_register(falcon_event_code_t event,
+                                 falcon_event_handler_func func);
+gboolean falcon_handler_unregister(falcon_event_code_t event,
+                                   falcon_event_handler_func func);
+
+/*
+ * This should be called at startup.
+ */
+void falcon_handler_registry_init(void);
+
+/*
+ * This is the default event handler. It checks if the user application has
+ * registered any custom handlers. If yes, call them one by one.
+ *
+ * If the custom event handler returns FALSE, the handler will be unregistered.
+ */
+void falcon_handler(falcon_object_t *object, falcon_event_code_t event,
+                    falcon_cache_t *cache);
 
 #endif

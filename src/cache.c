@@ -34,10 +34,58 @@ falcon_cache_t *falcon_cache_new(void) {
 void falcon_cache_free(falcon_cache_t *cache) {
 	falcon_object_t *object = NULL;
 
+	g_return_if_fail(cache);
+
 	while (object = g_queue_pop_head(cache->objects)) {
 		falcon_object_free(object);
 	}
 	g_queue_free(cache->objects);
 	g_mutex_free(cache->lock);
 	g_free(cache);
+}
+
+falcon_object_t *falcon_cache_get_object(falcon_cache_t *cache,
+                                         const gchar *name) {
+	GList *object = NULL;
+
+	g_return_val_if_fail(cache, NULL);
+
+	g_mutex_lock(cache->lock);
+	object = g_queue_find_custom(cache->objects, name, falcon_object_compare);
+	g_mutex_unlock(cache->lock);
+	return object ? object->data : NULL;
+}
+
+gboolean falcon_cache_add_object(falcon_cache_t *cache,
+                                 falcon_object_t *object) {
+	GList *l = NULL;
+
+	g_return_val_if_fail(cache, FALSE);
+
+	g_mutex_lock(cache->lock);
+	l = g_queue_find_custom(cache->objects, name, falcon_object_compare);
+
+	if (l) {
+		falcon_object_free(l->data);
+		l->data = object;
+	} else {
+		g_queue_push_tail(cache->objects, object);
+	}
+
+	g_mutex_unlock(cache->lock);
+
+	return TRUE;
+}
+
+gboolean falcon_cache_delete_object(falcon_cache_t *cache,
+                                    falcon_object_t *object) {
+	GList *l = NULL;
+
+	g_return_val_if_fail(cache, FALSE);
+
+	g_mutex_lock(cache->lock);
+	l = g_queue_remove_all(cache->objects, object);
+	g_mutex_unlock(cache->lock);
+
+	return TRUE;
 }

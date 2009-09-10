@@ -22,29 +22,12 @@
  * THE SOFTWARE.
  */
 
-#ifndef _OBJECT_H_
-#define _OBJECT_H_
-
-#include <sys/types.h>
-#include <glib.h>
-
 #include "common.h"
 
-/*
- * Only one thread will modify a single object at a time, so there's no need to
- * lock it.
- */
-typedef struct {
-	mode_t mode;
-	off_t size;
-	time_t time;
-	gchar *name;
-} falcon_object_t;
+gint falcon_object_compare(const falcon_object_t *a, const gchar *b) {
+	if (g_utf8_collate(a->name, b) == 0) {
+		return 0;
+	}
 
-/*
- * If name is not NULL, it must be a NULL-terminated string.
- */
-falcon_object_t *falcon_object_new(const gchar *name);
-void falcon_object_free(falcon_object_t *object);
-
-#endif
+	return -1;
+}

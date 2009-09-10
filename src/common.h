@@ -36,4 +36,6 @@
 #define FALCON_ERROR_CRITICAL G_LOG_LEVEL_CRITICAL
 #define FALCON_ERROR_WARNING G_LOG_LEVEL_WARNING
 
+gint falcon_object_compare(const falcon_object_t *a, const gchar *b);
+
 #endif

@@ -96,3 +96,15 @@ void falcon_walker_return(GQueue *objects, GError *error) {
 	g_mutex_unlock(&falcon_context.lock);
 	g_queue_free(objects);
 }
+
+void falcon_add_task(falcon_object_t *object) {
+	GList *l = NULL;
+
+	g_return_if_fail(object);
+
+	g_mutex_lock(&falcon_context.lock);
+	l = g_queue_find_custom(&falcon_context.pending_objects, object->name);
+	if (!l)
+		g_queue_push_tail(&falcon_context.pending_objects, object);
+	g_mutex_unlock(&falcon_context.lock);
+}

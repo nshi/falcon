@@ -26,7 +26,7 @@
 
 #include "object.h"
 
-falcon_object_t *falcon_object_new(const char *name) {
+falcon_object_t *falcon_object_new(const gchar *name) {
 	falcon_object_t *object = g_new0(falcon_object_t, 1);
 	if (name)
 		object->name = g_strdup(name);
