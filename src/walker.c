@@ -29,7 +29,7 @@
 #include "event.h"
 
 gboolean falcon_walker_runeach(falcon_object_t *object,
-                               falcon_walker_userdata_t *user) {
+                               falcon_walker_context_t *user) {
 	g_return_val_if_fail(object, -1);
 
 	if (!(object->name))
@@ -51,7 +51,7 @@ void falcon_walker_run(gpointer data, gpointer userdata) {
 	GQueue *objects = (GQueue *)data;
 	GQueue *failed_objects = objects;
 	falcon_object_t *object = NULL;
-	falcon_walker_userdata_t *user = (falcon_walker_userdata_t *)userdata;
+	falcon_walker_context_t *user = (falcon_walker_context_t *)userdata;
 	guint i;
 	GError *error = NULL;
 

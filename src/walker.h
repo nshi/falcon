@@ -34,7 +34,7 @@ typedef struct {
 	falcon_cache_t *cache;
 	GAsyncQueue *queue;
 	void (*falcon_walker_return)(GQueue *objects, GError *error);
-} falcon_walker_userdata_t;
+} falcon_walker_context_t;
 
 /*
  * This starts the walker thread.
