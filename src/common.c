@@ -25,9 +25,5 @@
 #include "common.h"
 
 gint falcon_object_compare(const falcon_object_t *a, const gchar *b) {
-	if (g_utf8_collate(a->name, b) == 0) {
-		return 0;
-	}
-
-	return -1;
+	return g_utf8_collate(a->name, b) == 0 ? 0 : -1;
 }
