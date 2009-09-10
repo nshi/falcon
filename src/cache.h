@@ -48,7 +48,12 @@ falcon_object_t *falcon_cache_get_object(falcon_cache_t *cache,
  */
 gboolean falcon_cache_add_object(falcon_cache_t *cache,
                                  falcon_object_t *object);
+/*
+ * Deletes an object. If the current object is a directory and flag is TRUE, it
+ * also deletes all objects under this directory.
+ */
 gboolean falcon_cache_delete_object(falcon_cache_t *cache,
-                                    falcon_object_t *object);
+                                    const gchar *name,
+                                    gboolean flag);
 
 #endif

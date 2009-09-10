@@ -24,6 +24,24 @@
 
 #include "cache.h"
 
+gint falcon_cache_object_startswith(const falcon_object_t *a, const gchar *b) {
+	return g_string_has_prefix(a->name, b) ? 0 : -1;
+}
+
+void falcon_cache_recursive_delete(falcon_cache_t *cache, const gchar *name) {
+	GList *object = NULL;
+
+	g_return_if_fail(cache);
+	g_return_if_fail(name);
+
+	do {
+		object = g_queue_find_custom(cache->objects, name,
+		                             falcon_cache_object_startswith);
+		if (object)
+			g_queue_remove_all(cache->objects, object->data);
+	} while (object);
+}
+
 falcon_cache_t *falcon_cache_new(void) {
 	falcon_cache_t *cache = g_new0(falcon_cache_t, 1);
 	cache->lock = g_mutex_new();
@@ -49,6 +67,7 @@ falcon_object_t *falcon_cache_get_object(falcon_cache_t *cache,
 	GList *object = NULL;
 
 	g_return_val_if_fail(cache, NULL);
+	g_return_val_if_fail(name, NULL);
 
 	g_mutex_lock(cache->lock);
 	object = g_queue_find_custom(cache->objects, name, falcon_object_compare);
@@ -61,6 +80,7 @@ gboolean falcon_cache_add_object(falcon_cache_t *cache,
 	GList *l = NULL;
 
 	g_return_val_if_fail(cache, FALSE);
+	g_return_val_if_fail(object, FALSE);
 
 	g_mutex_lock(cache->lock);
 	l = g_queue_find_custom(cache->objects, name, falcon_object_compare);
@@ -78,13 +98,18 @@ gboolean falcon_cache_add_object(falcon_cache_t *cache,
 }
 
 gboolean falcon_cache_delete_object(falcon_cache_t *cache,
-                                    falcon_object_t *object) {
+                                    const gchar *name,
+                                    gboolean flag) {
 	GList *l = NULL;
 
 	g_return_val_if_fail(cache, FALSE);
+	g_return_val_if_fail(name, FALSE);
 
 	g_mutex_lock(cache->lock);
-	l = g_queue_remove_all(cache->objects, object);
+	l = g_queue_find_custom(cache->objects, name, falcon_object_compare);
+	g_queue_remove_all(cache->objects, l->data);
+	if (flag)
+		falcon_cache_recursive_delete(cache, name);
 	g_mutex_unlock(cache->lock);
 
 	return TRUE;
