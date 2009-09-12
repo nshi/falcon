@@ -43,6 +43,8 @@ void falcon_handler_deleted_event(falcon_object_t *object,
                                   falcon_cache_t *cache) {
 	if (!falcon_cache_delete_object(cache, object->name, TRUE))
 		g_warning(_("Failed to delete %s from the cache."), object->name);
+
+	falcon_object_free(object);
 }
 
 void falcon_handler_changed_event(falcon_object_t *object,
@@ -101,24 +103,6 @@ void falcon_handler(falcon_object_t *object, falcon_event_code_t event,
 	GSList *cur = NULL;
 	GSList *prev = NULL;
 
-	/* Update cache. */
-	switch (event) {
-	case EVENT_DIR_CREATED:
-	case EVENT_FILE_CREATED:
-		falcon_handler_created_event(object, event, cache);
-		break;
-	case EVENT_DIR_DELETED:
-	case EVENT_FILE_DELETED:
-		falcon_handler_deleted_event(object, event, cache);
-		break;
-	case EVENT_DIR_CHANGED:
-	case EVENT_FILE_CHANGED:
-		falcon_handler_changed_event(object, event, cache);
-		break;
-	default:
-		break;
-	}
-
 	/* Call user handlers. */
 	if (!falcon_handler_registry) {
 		g_critical(_("Registry uninitialized. Failed to handle event %s"),
@@ -141,4 +125,22 @@ void falcon_handler(falcon_object_t *object, falcon_event_code_t event,
 	}
 
 	g_hash_table_insert(falcon_handler_registry, GUINT_TO_POINTER(event), list);
+
+	/* Update cache. */
+	switch (event) {
+	case EVENT_DIR_CREATED:
+	case EVENT_FILE_CREATED:
+		falcon_handler_created_event(object, event, cache);
+		break;
+	case EVENT_DIR_DELETED:
+	case EVENT_FILE_DELETED:
+		falcon_handler_deleted_event(object, event, cache);
+		break;
+	case EVENT_DIR_CHANGED:
+	case EVENT_FILE_CHANGED:
+		falcon_handler_changed_event(object, event, cache);
+		break;
+	default:
+		break;
+	}
 }
