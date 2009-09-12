@@ -1,14 +1,16 @@
 #+SEQ_TODO: TODO ACTIVE DONE
 
+* General
+** TODO [#C] Organize error handling code.						:Enhancement:
+   Some places use error reporting infrastructure, but some use g_return_*.
 * Handler
 ** TODO [#B] Handle changed event.									:Feature:
 ** TODO [#B] Handle moved event.									:Feature:
-
 * Walker
-** TODO [#A] Create object when walking.								:Bug:
-
+** DONE [#A] Create object when walking.								:Bug:
+   CLOSED: [2009-09-11 Fri 23:55]
 * Cache
 ** TODO [#C] Implement trie and use it to store objects.		:Enhancement:
-
 * Falcon
 ** TODO [#B] Implement the main function.							:Feature:
+** TODO [#B] Implement add_dir function.							:Feature:
