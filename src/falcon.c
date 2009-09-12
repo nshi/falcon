@@ -67,6 +67,23 @@ void falcon_push(GQueue *queue, falcon_object_t *object) {
 	g_mutex_unlock(&falcon_context.lock);
 }
 
+void falcon_add(const gchar *name, gboolean watch) {
+	falcon_object_t *object = NULL;
+
+	if (!name) {
+		g_warning(_("Failed to add object, name not provided."));
+		return;
+	}
+
+	g_mutex_lock(&falcon_context.lock);
+	object = falcon_cache_get_object(falcon_context.cache, name);
+	g_mutex_unlock(&falcon_context.lock);
+	if (!object) {
+		object = falcon_object_new(name);
+		falcon_task_add(object);
+	}
+}
+
 void falcon_task_add(falcon_object_t *object) {
 	falcon_push(&falcon_context.pending_objects, object);
 }
