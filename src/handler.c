@@ -54,7 +54,7 @@ void falcon_handler_changed_event(falcon_object_t *object,
 }
 
 gboolean falcon_handler_register(falcon_event_code_t event,
-                                 falcon_event_handler_func func) {
+                                 falcon_handler_func func) {
 	GSList *list = NULL;
 
 	if (!falcon_handler_registry) {
@@ -72,7 +72,7 @@ gboolean falcon_handler_register(falcon_event_code_t event,
 }
 
 gboolean falcon_handler_unregister(falcon_event_code_t event,
-                                   falcon_event_handler_func func) {
+                                   falcon_handler_func func) {
 	GSList *list = NULL;
 
 	if (!falcon_handler_registry) {
@@ -115,7 +115,8 @@ void falcon_handler(falcon_object_t *object, falcon_event_code_t event,
 
 	prev = list;
 	for (cur = prev; cur; cur = g_slist_next(prev)) {
-		if (!cur->data(object, event)) {
+		func = (falcon_handler_func)cur->data;
+		if (!func(object, event)) {
 			list = g_slist_delete_link(list, cur);
 			if (cur == prev)
 				prev = list;

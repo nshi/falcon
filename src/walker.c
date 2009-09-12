@@ -28,8 +28,9 @@
 #include <glib/gstdio.h>
 
 #include "walker.h"
-#include "event.h"
+#include "events.h"
 #include "falcon.h"
+#include "handler.h"
 
 void falcon_walker_report(GError *error) {
 	if (error) {
@@ -71,7 +72,7 @@ void falcon_walker_walk_dir(const gchar *name, falcon_cache_t *cache) {
 
 	while ((entry = g_dir_read_name(dir))) {
 		/* Should detect OS when building path. */
-		path = g_build_path("/", name, entry);
+		path = g_build_path("/", name, entry, (const gchar *)NULL);
 
 		object = falcon_cache_get_object(cache, path);
 		if (!object)
@@ -125,7 +126,7 @@ gboolean falcon_walker_runeach(falcon_object_t *object, falcon_cache_t *cache) {
 			event = EVENT_DIR_CREATED;
 			falcon_walker_walk_dir(object->name, cache);
 		} else {
-			if (!falcon_object_compare(object, cache)) {
+			if (!falcon_object_equal(object, cached)) {
 				event = EVENT_DIR_CHANGED;
 				falcon_walker_walk_dir(object->name, cache);
 			}
@@ -135,7 +136,7 @@ gboolean falcon_walker_runeach(falcon_object_t *object, falcon_cache_t *cache) {
 		if (!cached)
 			event = EVENT_FILE_CREATED;
 		else {
-			if (!falcon_object_compare(object, cache))
+			if (!falcon_object_equal(object, cached))
 				event = EVENT_FILE_CHANGED;
 		}
 	}
@@ -150,7 +151,6 @@ void falcon_walker_run(gpointer data, gpointer userdata) {
 	GQueue *objects = (GQueue *)data;
 	falcon_object_t *object = NULL;
 	falcon_cache_t *cache = (falcon_cache_t *)userdata;
-	guint i;
 	GError *error = NULL;
 
 	g_return_if_fail(objects);
@@ -159,20 +159,16 @@ void falcon_walker_run(gpointer data, gpointer userdata) {
 	if (!cache) {
 		g_set_error(&error, FALCON_WALKER_ERROR, FALCON_ERROR_CRITICAL,
 		            _("Cache not provided. Walker thread returning."));
-		goto finish;
-	}
-
-	while (!g_queue_is_empty(objects)) {
-		object = g_queue_pop_head(objects);
-		if (!falcon_walker_runeach(object, cache)) {
-			falcon_failed_add(object);
+	} else {
+		while (!g_queue_is_empty(objects)) {
+			object = g_queue_pop_head(objects);
+			if (!falcon_walker_runeach(object, cache)) {
+				falcon_failed_add(object);
+			}
 		}
 	}
 
-finish:
-	if (failed_objects != objects)
-		g_queue_free(objects);
-	falcon_walker_report(failed_objects, error);
+	falcon_walker_report(error);
 	if (!error)
 		g_error_free(error);
 }

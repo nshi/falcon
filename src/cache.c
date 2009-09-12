@@ -24,8 +24,9 @@
 
 #include "cache.h"
 
-gint falcon_cache_object_startswith(const falcon_object_t *a, const gchar *b) {
-	return g_string_has_prefix(a->name, b) ? 0 : -1;
+gint falcon_cache_object_startswith(gconstpointer a, gconstpointer b) {
+	return g_str_has_prefix(((const falcon_object_t *)a)->name,
+	                        (const gchar *)b) ? 0 : -1;
 }
 
 void falcon_cache_recursive_delete(falcon_cache_t *cache, const gchar *name) {
@@ -54,7 +55,7 @@ void falcon_cache_free(falcon_cache_t *cache) {
 
 	g_return_if_fail(cache);
 
-	while (object = g_queue_pop_head(cache->objects)) {
+	while ((object = g_queue_pop_head(cache->objects))) {
 		falcon_object_free(object);
 	}
 	g_queue_free(cache->objects);
@@ -83,7 +84,7 @@ gboolean falcon_cache_add_object(falcon_cache_t *cache,
 	g_return_val_if_fail(object, FALSE);
 
 	g_mutex_lock(cache->lock);
-	l = g_queue_find_custom(cache->objects, name, falcon_object_compare);
+	l = g_queue_find_custom(cache->objects, object->name, falcon_object_compare);
 
 	if (l) {
 		falcon_object_free(l->data);

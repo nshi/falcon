@@ -27,14 +27,16 @@
 
 #include "common.h"
 #include "object.h"
+#include "events.h"
+#include "cache.h"
 
-gboolean (*falcon_handler_func)(falcon_object_t *object,
-                                falcon_event_code_t event);
+typedef gboolean (*falcon_handler_func)(falcon_object_t *object,
+                                        falcon_event_code_t event);
 
 gboolean falcon_handler_register(falcon_event_code_t event,
-                                 falcon_event_handler_func func);
+                                 falcon_handler_func func);
 gboolean falcon_handler_unregister(falcon_event_code_t event,
-                                   falcon_event_handler_func func);
+                                   falcon_handler_func func);
 
 /*
  * This should be called at startup.

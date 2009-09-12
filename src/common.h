@@ -26,16 +26,17 @@
 #define _COMMON_H_
 
 #include <glib.h>
-#include <glib/gi18n.h>
 
 #define GETTEXT_PACKAGE "falcon01"
 #include <glib/gi18n-lib.h>
+
+#include "object.h"
 
 /* Errors */
 #define FALCON_ERROR_ERROR G_LOG_LEVEL_ERROR
 #define FALCON_ERROR_CRITICAL G_LOG_LEVEL_CRITICAL
 #define FALCON_ERROR_WARNING G_LOG_LEVEL_WARNING
 
-gint falcon_object_compare(const falcon_object_t *a, const gchar *b);
+gint falcon_object_compare(gconstpointer a, gconstpointer b);
 
 #endif

@@ -31,6 +31,8 @@
 #include "cache.h"
 #include "walker.h"
 
+void falcon_init(void);
+
 /*
  * This adds an object with the given name to the cache. Watch the directory for
  * changes if watch is TRUE.

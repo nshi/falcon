@@ -41,8 +41,8 @@ void falcon_object_free(falcon_object_t *object) {
 	g_free(object);
 }
 
-gboolean falcon_object_compare(const falcon_object_t *a,
-                               const falcon_object_t *b) {
+gboolean falcon_object_equal(const falcon_object_t *a,
+                             const falcon_object_t *b) {
 	g_return_val_if_fail(a, FALSE);
 	g_return_val_if_fail(b, FALSE);
 
