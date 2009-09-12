@@ -87,3 +87,15 @@ void falcon_object_set_time(falcon_object_t *object, time_t time) {
 
 	object->time = time;
 }
+
+gboolean falcon_object_get_watch(const falcon_object_t *object) {
+	g_return_val_if_fail(object, FALSE);
+
+	return object->watch;
+}
+
+void falcon_object_set_watch(falcon_object_t *object, gboolean watch) {
+	g_return_if_fail(object);
+
+	object->watch = watch;
+}

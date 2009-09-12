@@ -35,10 +35,11 @@
  * lock it.
  */
 typedef struct {
+	gchar *name;
 	mode_t mode;
 	off_t size;
 	time_t time;
-	gchar *name;
+	gboolean watch;
 } falcon_object_t;
 
 /*
@@ -55,5 +56,7 @@ off_t falcon_object_get_size(const falcon_object_t *object);
 void falcon_object_set_size(falcon_object_t *object, off_t size);
 time_t falcon_object_get_time(const falcon_object_t *object);
 void falcon_object_set_time(falcon_object_t *object, time_t time);
+gboolean falcon_object_get_watch(const falcon_object_t *object);
+void falcon_object_set_watch(falcon_object_t *object, gboolean watch);
 
 #endif
