@@ -5,12 +5,20 @@
    Some places use error reporting infrastructure, but some use g_return_*.
 * Handler
 ** TODO [#B] Handle changed event.									:Feature:
-** TODO [#B] Handle moved event.									:Feature:
 * Walker
 ** DONE [#A] Create object when walking.								:Bug:
    CLOSED: [2009-09-11 Fri 23:55]
 * Cache
 ** TODO [#C] Implement trie and use it to store objects.		:Enhancement:
 * Falcon
-** TODO [#B] Implement the main function.							:Feature:
-** TODO [#B] Implement add_dir function.							:Feature:
+** ACTIVE [#B] Implement the main function.							:Feature:
+** DONE [#B] Implement add_dir function.							:Feature:
+   CLOSED: [2009-09-12 Sat 00:19]
+** TODO [#C] Allow setting the watching flag of an object.			:Feature:
+   If it's a directory, should propagate the watchability flag to its
+   descendents.
+* Watcher
+** TODO [#C] Implement watcher.										:Feature:
+* Config
+** TODO [#C] Implement config loader.								:Feature:
+** TODO [#C] Implement config writer.								:Feature:
