@@ -27,15 +27,11 @@
 
 #include "object.h"
 
-falcon_object_t *falcon_object_new(const gchar *name, mode_t mode,
-                                   off_t size, time_t time) {
+falcon_object_t *falcon_object_new(const gchar *name) {
 	g_return_val_if_fail(name, NULL);
 
 	falcon_object_t *object = g_new0(falcon_object_t, 1);
 	object->name = g_strdup(name);
-	object->mode = mode;
-	object->size = size;
-	object->time = time;
 	return object;
 }
 
@@ -43,6 +39,17 @@ void falcon_object_free(falcon_object_t *object) {
 	g_return_if_fail(object);
 	g_free(object->name);
 	g_free(object);
+}
+
+gboolean falcon_object_compare(const falcon_object_t *a,
+                               const falcon_object_t *b) {
+	g_return_val_if_fail(a, FALSE);
+	g_return_val_if_fail(b, FALSE);
+
+	return (a->mode == b->mode
+	        && a->size == b->size
+	        && a->time == b->time
+	        && g_strcmp0(a->name, b->name));
 }
 
 gboolean falcon_object_isdir(const falcon_object_t *object) {

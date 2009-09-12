@@ -44,10 +44,11 @@ typedef struct {
 /*
  * If name is not NULL, it must be a NULL-terminated string.
  */
-falcon_object_t *falcon_object_new(const gchar *name, mode_t mode,
-                                   off_t size, time_t time);
+falcon_object_t *falcon_object_new(const gchar *name);
 void falcon_object_free(falcon_object_t *object);
 
+gboolean falcon_object_compare(const falcon_object_t *a,
+                               const falcon_object_t *b);
 gboolean falcon_object_isdir(const falcon_object_t *object);
 void falcon_object_set_mode(falcon_object_t *object, mode_t mode);
 off_t falcon_object_get_size(const falcon_object_t *object);
