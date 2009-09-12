@@ -47,6 +47,9 @@
  * The walker may not consume all the paths provided to it due to errors. The
  * caller should check if the given list of paths has been fully consumed after
  * the thread returns.
+ *
+ * data: A queue of falcon objects to run.
+ * userdata: A falcon cache.
  */
 void falcon_walker_run(gpointer data, gpointer userdata);
 
