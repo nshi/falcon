@@ -25,16 +25,12 @@
 #ifndef _WALKER_H_
 #define _WALKER_H_
 
+#include <glib.h>
+
 #include "common.h"
 #include "cache.h"
 
 #define FALCON_WALKER_ERROR g_quark_from_static_string("falcon-walker-error")
-
-typedef struct {
-	falcon_cache_t *cache;
-	GAsyncQueue *queue;
-	void (*falcon_walker_return)(GQueue *objects, GError *error);
-} falcon_walker_context_t;
 
 /*
  * This starts the walker thread.

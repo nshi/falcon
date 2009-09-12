@@ -31,14 +31,7 @@
 #include "cache.h"
 #include "walker.h"
 
-/*
- * This function handles the freeing of any objects left in the list along with
- * the list itself. The caller of this function should never use or free the
- * object queue after calling this function. Any successfully walked objects
- * should be freed by the walker before calling this function.
- */
-void falcon_walker_return(GQueue *objects, GError *error);
-
-void falcon_add_task(falcon_object_t *object);
+void falcon_task_add(falcon_object_t *object);
+void falcon_failed_add(falcon_object_t *object);
 
 #endif

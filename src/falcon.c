@@ -44,67 +44,33 @@ void falcon_context_init(void) {
 void falcon_context_free(void) {
 	falcon_object_t *object = NULL;
 
-	while (object = g_queue_pop_head(falcon_context.pending_objects)) {
+	while ((object = g_queue_pop_head(falcon_context.pending_objects))) {
 		falcon_object_free(object);
 	}
-	while (object = g_queue_pop_head(falcon_context.failed_objects)) {
+	while ((object = g_queue_pop_head(falcon_context.failed_objects))) {
 		falcon_object_free(object);
 	}
 
 	falcon_cache_free(falcon_context.cache);
 }
 
-void falcon_walker_return(GQueue *objects, GError *error) {
-	falcon_object_t *object = NULL;
-
-	g_return_if_fail(objects);
-
-	if (error) {
-		switch (error->code) {
-		case FALCON_ERROR_ERROR:
-			g_error("%s: %s", g_quark_to_string(error->domain),
-			        error->message);
-			break;
-		case FALCON_ERROR_CRITICAL:
-			g_critical("%s: %s", g_quark_to_string(error->domain),
-			           error->message);
-			break;
-		case FALCON_ERROR_WARNING:
-			g_warning("%s: %s", g_quark_to_string(error->domain),
-			          error->message);
-			break;
-		default:
-			g_message("%s: %s", g_quark_to_string(error->domain),
-			          error->message);
-		}
-
-		/* Add the objects to the global failed list */
-		g_mutex_lock(&falcon_context.lock);
-		while (object = g_queue_pop_head(objects)) {
-			g_queue_push_tail(&falcon_context.failed_objects, object);
-		}
-		g_mutex_unlock(&falcon_context.lock);
-		g_queue_free(objects);
-
-		return;
-	}
-
-	g_mutex_lock(&falcon_context.lock);
-	while (object = g_queue_pop_head(objects)) {
-		g_queue_push_tail(&falcon_context.pending_objects, object);
-	}
-	g_mutex_unlock(&falcon_context.lock);
-	g_queue_free(objects);
-}
-
-void falcon_add_task(falcon_object_t *object) {
+void falcon_push(GQueue *queue, falcon_object_t *object) {
 	GList *l = NULL;
 
+	g_return_if_fail(queue);
 	g_return_if_fail(object);
 
 	g_mutex_lock(&falcon_context.lock);
-	l = g_queue_find_custom(&falcon_context.pending_objects, object->name);
+	l = g_queue_find_custom(queue, object->name);
 	if (!l)
-		g_queue_push_tail(&falcon_context.pending_objects, object);
+		g_queue_push_tail(queue, object);
 	g_mutex_unlock(&falcon_context.lock);
+}
+
+void falcon_task_add(falcon_object_t *object) {
+	falcon_push(&falcon_context.pending_objects, object);
+}
+
+void falcon_failed_add(falcon_object_t *object) {
+	falcon_push(&falcon_context.failed_objects, object);
 }
