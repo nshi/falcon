@@ -36,9 +36,6 @@ void falcon_handler_created_event(falcon_object_t *object,
 		g_warning(_("Failed to add %s to the cache."), object->name);
 		return;
 	}
-
-	if (event == EVENT_DIR_CREATED)
-		falcon_add_task(object);
 }
 
 void falcon_handler_deleted_event(falcon_object_t *object,
@@ -51,12 +48,6 @@ void falcon_handler_deleted_event(falcon_object_t *object,
 void falcon_handler_changed_event(falcon_object_t *object,
                                   falcon_event_code_t event,
                                   falcon_cache_t *cache) {
-
-}
-
-void falcon_handler_moved_event(falcon_object_t *object,
-                                falcon_event_code_t event,
-                                falcon_cache_t *cache) {
 
 }
 
@@ -123,10 +114,6 @@ void falcon_handler(falcon_object_t *object, falcon_event_code_t event,
 	case EVENT_DIR_CHANGED:
 	case EVENT_FILE_CHANGED:
 		falcon_handler_changed_event(object, event, cache);
-		break;
-	case EVENT_DIR_MOVED:
-	case EVENT_FILE_MOVED:
-		falcon_handler_moved_event(object, event, cache);
 		break;
 	default:
 		break;

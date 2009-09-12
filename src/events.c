@@ -37,9 +37,6 @@ const gchar *falcon_event_to_string(falcon_event_code_t event) {
 	case EVENT_DIR_CHANGED:
 		return "EVENT_DIR_CHANGED";
 		break;
-	case EVENT_DIR_MOVED:
-		return "EVENT_DIR_MOVED";
-		break;
 	case EVENT_FILE_CREATED:
 		return "EVENT_FILE_CREATED";
 		break;
@@ -48,9 +45,6 @@ const gchar *falcon_event_to_string(falcon_event_code_t event) {
 		break;
 	case EVENT_FILE_CHANGED:
 		return "EVENT_FILE_CHANGED";
-		break;
-	case EVENT_FILE_MOVED:
-		return "EVENT_FILE_MOVED";
 		break;
 	default:
 		return "Unknown";
