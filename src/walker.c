@@ -32,7 +32,7 @@
 #include "falcon.h"
 #include "handler.h"
 
-void falcon_walker_walk_dir(const gchar *name, falcon_cache_t *cache) {
+static void falcon_walker_walk_dir(const gchar *name, falcon_cache_t *cache) {
 	GDir *dir = NULL;
 	GError *error = NULL;
 	const gchar *entry = NULL;
@@ -66,7 +66,8 @@ void falcon_walker_walk_dir(const gchar *name, falcon_cache_t *cache) {
 	g_dir_close(dir);
 }
 
-gboolean falcon_walker_runeach(falcon_object_t *object, falcon_cache_t *cache) {
+static gboolean falcon_walker_runeach(falcon_object_t *object,
+                                      falcon_cache_t *cache) {
 	falcon_object_t *cached = NULL;
 	falcon_event_code_t event = EVENT_NONE;
 	struct stat info;

@@ -39,7 +39,7 @@ typedef struct {
 
 static falcon_context_t context;
 
-void falcon_context_init(void) {
+static void falcon_context_init(void) {
 	context.lock = g_mutex_new();
 	g_queue_init(&context.pending_objects);
 	g_queue_init(&context.failed_objects);
@@ -53,7 +53,7 @@ void falcon_context_init(void) {
 	context.running = 0;
 }
 
-void falcon_context_free(gboolean wait) {
+static void falcon_context_free(gboolean wait) {
 	falcon_object_t *object = NULL;
 
 	while ((object = g_queue_pop_head(&context.pending_objects))) {
@@ -69,7 +69,7 @@ void falcon_context_free(gboolean wait) {
 }
 
 /* The caller must lock the context. */
-void falcon_push(GQueue *queue, falcon_object_t *object) {
+static void falcon_push(GQueue *queue, falcon_object_t *object) {
 	GList *l = NULL;
 
 	g_return_if_fail(queue);
@@ -80,7 +80,7 @@ void falcon_push(GQueue *queue, falcon_object_t *object) {
 }
 
 /* The caller must lock the context. */
-void falcon_dispatch(gboolean force) {
+static void falcon_dispatch(gboolean force) {
 	GQueue *objects = NULL;
 	guint length = g_queue_get_length(&context.pending_objects);
 

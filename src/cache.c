@@ -24,12 +24,13 @@
 
 #include "cache.h"
 
-gint falcon_cache_object_startswith(gconstpointer a, gconstpointer b) {
+static gint falcon_cache_object_startswith(gconstpointer a, gconstpointer b) {
 	return g_str_has_prefix(((const falcon_object_t *)a)->name,
 	                        (const gchar *)b) ? 0 : -1;
 }
 
-void falcon_cache_recursive_delete(falcon_cache_t *cache, const gchar *name) {
+static void falcon_cache_recursive_delete(falcon_cache_t *cache,
+                                          const gchar *name) {
 	GList *object = NULL;
 
 	g_return_if_fail(cache);
