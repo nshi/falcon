@@ -42,6 +42,7 @@ gboolean falcon_handler_unregister(falcon_event_code_t event,
  * This should be called at startup.
  */
 void falcon_handler_registry_init(void);
+void falcon_handler_registry_shutdown(void);
 
 /*
  * This is the default event handler. It checks if the user application has
