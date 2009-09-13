@@ -24,8 +24,8 @@
 
 #include "common.h"
 
-#define DEFAULT_LOG_LEVEL G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_ERROR \
-	| G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION;
+#define DEFAULT_LOG_LEVEL (G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_ERROR \
+                           | G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION)
 
 static GLogLevelFlags falcon_log_level = DEFAULT_LOG_LEVEL;
 
