@@ -3,13 +3,18 @@
 * General
 ** TODO [#C] Organize error handling code.						:Enhancement:
    Some places use error reporting infrastructure, but some use g_return_*.
+** TODO [#C] Turn off debug message output by default.				:Feature:
+** TODO [#B] Add static keyword to all private functions.				:Bug:
 * Handler
 ** TODO [#B] Handle changed event.									:Feature:
+** TODO [#C] Allow user to pass a userdata to the custom handlers.	:Feature:
 * Walker
 ** DONE [#A] Create object when walking.								:Bug:
    CLOSED: [2009-09-11 Fri 23:55]
 * Cache
-** TODO [#C] Implement trie and use it to store objects.		:Enhancement:
+** TODO [#B] Implement trie and use it to store objects.		:Enhancement:
+   This will greatly reduce the time spent on scanning. Currently the speed
+   sucks.
 * Falcon
 ** ACTIVE [#B] Implement the main function.							:Feature:
 ** DONE [#B] Implement add_dir function.							:Feature:
@@ -17,8 +22,11 @@
 ** TODO [#C] Allow setting the watching flag of an object.			:Feature:
    If it's a directory, should propagate the watchability flag to its
    descendents.
+** TODO [#B] Shutdown the system clearly, including clearing all the memory. :Bug:
 * Watcher
 ** TODO [#C] Implement watcher.										:Feature:
 * Config
 ** TODO [#C] Implement config loader.								:Feature:
 ** TODO [#C] Implement config writer.								:Feature:
+* Events
+** TODO [#C] Allow users to register a handler for all events.		:Feature:
