@@ -79,7 +79,7 @@ gboolean falcon_walker_runeach(falcon_object_t *object, falcon_cache_t *cache) {
 
 	cached = falcon_cache_get_object(cache, object->name);
 
-	if (cache && !g_file_test(object->name, G_FILE_TEST_EXISTS)) {
+	if (cached && !g_file_test(object->name, G_FILE_TEST_EXISTS)) {
 		if (S_ISDIR(cached->mode))
 			falcon_handler(object, EVENT_DIR_DELETED, cache);
 		else
