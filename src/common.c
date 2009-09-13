@@ -24,7 +24,55 @@
 
 #include "common.h"
 
+#define DEFAULT_LOG_LEVEL G_LOG_LEVEL_CRITICAL | G_LOG_LEVEL_ERROR \
+	| G_LOG_FLAG_FATAL | G_LOG_FLAG_RECURSION;
+
+static GLogLevelFlags falcon_log_level = DEFAULT_LOG_LEVEL;
+
+void falcon_log_handler (const gchar *log_domain, GLogLevelFlags log_level,
+                         const gchar *message, gpointer user_data) {
+	if (log_level > falcon_log_level)
+		return;
+
+	g_log_default_handler(log_domain, log_level, message, user_data);
+}
+
+void falcon_set_log_level(GLogLevelFlags log_level) {
+	falcon_log_level  = DEFAULT_LOG_LEVEL;
+
+	if (log_level >= G_LOG_LEVEL_WARNING)
+		falcon_log_level |= G_LOG_LEVEL_WARNING;
+	if (log_level >= G_LOG_LEVEL_MESSAGE)
+		falcon_log_level |= G_LOG_LEVEL_MESSAGE;
+	if (log_level >= G_LOG_LEVEL_INFO)
+		falcon_log_level |= G_LOG_LEVEL_INFO;
+	if (log_level >= G_LOG_LEVEL_DEBUG)
+		falcon_log_level |= G_LOG_LEVEL_DEBUG;
+}
+
 gint falcon_object_compare(gconstpointer a, gconstpointer b) {
 	return g_utf8_collate(((const falcon_object_t *)a)->name,
 	                      (const gchar *)b) == 0 ? 0 : -1;
+}
+
+void falcon_error_report(GError *error) {
+	if (error) {
+		switch (error->code) {
+		case FALCON_ERROR_ERROR:
+			g_error("%s: %s", g_quark_to_string(error->domain),
+			        error->message);
+			break;
+		case FALCON_ERROR_CRITICAL:
+			g_critical("%s: %s", g_quark_to_string(error->domain),
+			           error->message);
+			break;
+		case FALCON_ERROR_WARNING:
+			g_warning("%s: %s", g_quark_to_string(error->domain),
+			          error->message);
+			break;
+		default:
+			g_message("%s: %s", g_quark_to_string(error->domain),
+			          error->message);
+		}
+	}
 }
