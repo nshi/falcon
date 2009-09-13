@@ -108,9 +108,7 @@ void falcon_dispatch(gboolean force) {
 }
 
 void falcon_init(void) {
-#ifdef FALCON_LOG_DISABLE
 	g_log_set_handler(G_LOG_DOMAIN, G_LOG_LEVEL_MASK, falcon_log_handler, NULL);
-#endif
 
 	falcon_context_init();
 	falcon_handler_registry_init();
@@ -128,6 +126,7 @@ void falcon_shutdown(gboolean wait) {
 		g_mutex_unlock(context.lock);
 	}
 
+	/* Maybe we have to save the cache before freeing. */
 	falcon_context_free(wait);
 	falcon_handler_registry_shutdown();
 }
