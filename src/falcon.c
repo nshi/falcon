@@ -22,7 +22,6 @@
  * THE SOFTWARE.
  */
 
-#include <stdio.h>
 #include <glib.h>
 
 #include "falcon.h"
@@ -83,9 +82,11 @@ void falcon_push(GQueue *queue, falcon_object_t *object) {
 /* The caller must lock the context. */
 void falcon_dispatch(gboolean force) {
 	GQueue *objects = NULL;
-	guint length = 0;
+	guint length = g_queue_get_length(&context.pending_objects);
 
-	length = g_queue_get_length(&context.pending_objects);
+	if (length == 0)
+		return;
+
 	g_debug(_("Dispatching conditions: force (%s), length (%d), running (%d)."),
 	        force ? "true" : "false",
 	        length,
@@ -171,5 +172,6 @@ void falcon_walker_return(GError *error) {
 	g_mutex_lock(context.lock);
 	context.running--;
 	g_cond_signal(context.running_cond);
+	falcon_dispatch(FALSE);
 	g_mutex_unlock(context.lock);
 }
