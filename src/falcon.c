@@ -22,61 +22,114 @@
  * THE SOFTWARE.
  */
 
+#include <stdio.h>
 #include <glib.h>
 
 #include "falcon.h"
+#include "handler.h"
 
 typedef struct {
 	GMutex *lock;
 	GQueue pending_objects;
 	GQueue failed_objects;
 	falcon_cache_t *cache;
+	GThreadPool *walkers;
+	GCond *running_cond;
+	guint running;				/* Currently scheduled tasks */
 } falcon_context_t;
 
-falcon_context_t falcon_context;
+static falcon_context_t context;
 
 void falcon_context_init(void) {
-	falcon_context.lock = g_mutex_new();
-	g_queue_init(&falcon_context.pending_objects);
-	g_queue_init(&falcon_context.failed_objects);
-	falcon_context.cache = falcon_cache_new();
+	context.lock = g_mutex_new();
+	g_queue_init(&context.pending_objects);
+	g_queue_init(&context.failed_objects);
+	context.cache = falcon_cache_new();
+	context.walkers = g_thread_pool_new(falcon_walker_run,
+	                                    context.cache,
+	                                    MAX_WALKERS,
+	                                    TRUE,
+	                                    NULL);
+	context.running_cond = g_cond_new();
+	context.running = 0;
 }
 
 void falcon_context_free(void) {
 	falcon_object_t *object = NULL;
 
-	g_mutex_lock(falcon_context.lock);
-	while ((object = g_queue_pop_head(&falcon_context.pending_objects))) {
+	while ((object = g_queue_pop_head(&context.pending_objects))) {
 		falcon_object_free(object);
 	}
-	while ((object = g_queue_pop_head(&falcon_context.failed_objects))) {
+	while ((object = g_queue_pop_head(&context.failed_objects))) {
 		falcon_object_free(object);
 	}
-	g_mutex_unlock(falcon_context.lock);
-
-	g_mutex_free(falcon_context.lock);
-
-	falcon_cache_free(falcon_context.cache);
+	g_thread_pool_free(context.walkers, FALSE, TRUE);
+	g_cond_free(context.running_cond);
+	g_mutex_free(context.lock);
+	falcon_cache_free(context.cache);
 }
 
+/* The caller must lock the context. */
 void falcon_push(GQueue *queue, falcon_object_t *object) {
 	GList *l = NULL;
 
 	g_return_if_fail(queue);
-	g_return_if_fail(object);
 
-	g_mutex_lock(falcon_context.lock);
 	l = g_queue_find_custom(queue, object->name, falcon_object_compare);
 	if (!l)
 		g_queue_push_tail(queue, object);
-	g_mutex_unlock(falcon_context.lock);
+}
+
+/* The caller must lock the context. */
+void falcon_dispatch(gboolean force) {
+	GQueue *objects = NULL;
+	guint length = 0;
+
+	length = g_queue_get_length(&context.pending_objects);
+	g_debug(_("Dispatching conditions: force (%s), length (%d), running (%d)."),
+	        force ? "true" : "false",
+	        length,
+	        context.running);
+	if (force
+	    || length == OBJECTS_PER_THREAD
+	    || context.running == 0) {
+		objects = g_queue_copy(&context.pending_objects);
+		g_queue_clear(&context.pending_objects);
+		g_debug(_("Dispatching %d objects to a walker."),
+		        g_queue_get_length(objects));
+	} else
+		g_debug(_("%d objects pending."), length);
+
+	if (objects) {
+		g_thread_pool_push(context.walkers, objects, NULL);
+		context.running++;
+	}
 }
 
 void falcon_init(void) {
+#ifdef FALCON_LOG_DISABLE
+	g_log_set_handler(G_LOG_DOMAIN, G_LOG_LEVEL_MASK, falcon_log_handler, NULL);
+#endif
+
 	falcon_context_init();
+	falcon_handler_registry_init();
 }
 
-void falcon_add(const gchar *name, gboolean watch) {
+void falcon_shutdown(void) {
+	g_mutex_lock(context.lock);
+	while (context.running != 0
+	       || g_queue_get_length(&context.pending_objects) > 0) {
+		if (g_queue_get_length(&context.pending_objects) > 0)
+			falcon_dispatch(TRUE);
+		g_cond_wait(context.running_cond, context.lock);
+	}
+	g_mutex_unlock(context.lock);
+
+	falcon_context_free();
+	falcon_handler_registry_shutdown();
+}
+
+void falcon_add(const gchar *name, gboolean watch ATTRIBUTE_UNUSED) {
 	falcon_object_t *object = NULL;
 
 	if (!name) {
@@ -84,9 +137,11 @@ void falcon_add(const gchar *name, gboolean watch) {
 		return;
 	}
 
-	g_mutex_lock(falcon_context.lock);
-	object = falcon_cache_get_object(falcon_context.cache, name);
-	g_mutex_unlock(falcon_context.lock);
+	g_debug(_("Adding \"%s\" by name."), name);
+
+	g_mutex_lock(context.lock);
+	object = falcon_cache_get_object(context.cache, name);
+	g_mutex_unlock(context.lock);
 	if (!object) {
 		object = falcon_object_new(name);
 		falcon_task_add(object);
@@ -94,9 +149,27 @@ void falcon_add(const gchar *name, gboolean watch) {
 }
 
 void falcon_task_add(falcon_object_t *object) {
-	falcon_push(&falcon_context.pending_objects, object);
+	g_return_if_fail(object);
+	g_debug(_("Adding task \"%s\"."), object->name);
+
+	g_mutex_lock(context.lock);
+	falcon_push(&context.pending_objects, object);
+	falcon_dispatch(FALSE);
+	g_mutex_unlock(context.lock);
 }
 
 void falcon_failed_add(falcon_object_t *object) {
-	falcon_push(&falcon_context.failed_objects, object);
+	g_return_if_fail(object);
+	g_mutex_lock(context.lock);
+	falcon_push(&context.failed_objects, object);
+	g_mutex_unlock(context.lock);
+}
+
+void falcon_walker_return(GError *error) {
+	falcon_error_report(error);
+
+	g_mutex_lock(context.lock);
+	context.running--;
+	g_cond_signal(context.running_cond);
+	g_mutex_unlock(context.lock);
 }

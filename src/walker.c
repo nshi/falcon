@@ -32,28 +32,6 @@
 #include "falcon.h"
 #include "handler.h"
 
-void falcon_walker_report(GError *error) {
-	if (error) {
-		switch (error->code) {
-		case FALCON_ERROR_ERROR:
-			g_error("%s: %s", g_quark_to_string(error->domain),
-			        error->message);
-			break;
-		case FALCON_ERROR_CRITICAL:
-			g_critical("%s: %s", g_quark_to_string(error->domain),
-			           error->message);
-			break;
-		case FALCON_ERROR_WARNING:
-			g_warning("%s: %s", g_quark_to_string(error->domain),
-			          error->message);
-			break;
-		default:
-			g_message("%s: %s", g_quark_to_string(error->domain),
-			          error->message);
-		}
-	}
-}
-
 void falcon_walker_walk_dir(const gchar *name, falcon_cache_t *cache) {
 	GDir *dir = NULL;
 	GError *error = NULL;
@@ -64,9 +42,11 @@ void falcon_walker_walk_dir(const gchar *name, falcon_cache_t *cache) {
 	g_return_if_fail(name);
 	g_return_if_fail(cache);
 
+	g_debug(_("Walking directory \"%s\"."), name);
+
 	dir = g_dir_open(name, 0, &error);
 	if (!dir) {
-		falcon_walker_report(error);
+		falcon_error_report(error);
 		return;
 	}
 
@@ -156,6 +136,8 @@ void falcon_walker_run(gpointer data, gpointer userdata) {
 	g_return_if_fail(objects);
 	g_return_if_fail(cache);
 
+	g_debug(_("Walker started with %d objects."), g_queue_get_length(objects));
+
 	if (!cache) {
 		g_set_error(&error, FALCON_WALKER_ERROR, FALCON_ERROR_CRITICAL,
 		            _("Cache not provided. Walker thread returning."));
@@ -168,7 +150,7 @@ void falcon_walker_run(gpointer data, gpointer userdata) {
 		}
 	}
 
-	falcon_walker_report(error);
-	if (!error)
+	falcon_walker_return(error);
+	if (error)
 		g_error_free(error);
 }
