@@ -12,7 +12,7 @@ int main(int argc ATTRIBUTE_UNUSED, char **argv) {
 	falcon_set_log_level(G_LOG_LEVEL_DEBUG);
 
 	falcon_add(argv[1], FALSE);
-	falcon_shutdown();
+	falcon_shutdown(TRUE);
 
 	return 0;
 }

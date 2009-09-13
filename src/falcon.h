@@ -32,7 +32,8 @@
 #include "walker.h"
 
 void falcon_init(void);
-void falcon_shutdown(void);
+/* Waits for all the tasks to be finished if wait is TRUE. */
+void falcon_shutdown(gboolean wait);
 
 /*
  * This adds an object with the given name to the cache. Watch the directory for

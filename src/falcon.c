@@ -53,7 +53,7 @@ void falcon_context_init(void) {
 	context.running = 0;
 }
 
-void falcon_context_free(void) {
+void falcon_context_free(gboolean wait) {
 	falcon_object_t *object = NULL;
 
 	while ((object = g_queue_pop_head(&context.pending_objects))) {
@@ -62,7 +62,7 @@ void falcon_context_free(void) {
 	while ((object = g_queue_pop_head(&context.failed_objects))) {
 		falcon_object_free(object);
 	}
-	g_thread_pool_free(context.walkers, FALSE, TRUE);
+	g_thread_pool_free(context.walkers, !wait, wait);
 	g_cond_free(context.running_cond);
 	g_mutex_free(context.lock);
 	falcon_cache_free(context.cache);
@@ -116,17 +116,19 @@ void falcon_init(void) {
 	falcon_handler_registry_init();
 }
 
-void falcon_shutdown(void) {
-	g_mutex_lock(context.lock);
-	while (context.running != 0
-	       || g_queue_get_length(&context.pending_objects) > 0) {
-		if (g_queue_get_length(&context.pending_objects) > 0)
-			falcon_dispatch(TRUE);
-		g_cond_wait(context.running_cond, context.lock);
+void falcon_shutdown(gboolean wait) {
+	if (wait) {
+		g_mutex_lock(context.lock);
+		while (context.running != 0
+		       || g_queue_get_length(&context.pending_objects) > 0) {
+			if (g_queue_get_length(&context.pending_objects) > 0)
+				falcon_dispatch(TRUE);
+			g_cond_wait(context.running_cond, context.lock);
+		}
+		g_mutex_unlock(context.lock);
 	}
-	g_mutex_unlock(context.lock);
 
-	falcon_context_free();
+	falcon_context_free(wait);
 	falcon_handler_registry_shutdown();
 }
 
