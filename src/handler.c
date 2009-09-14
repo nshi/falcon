@@ -45,8 +45,6 @@ falcon_handler_deleted_event(falcon_object_t *object,
                              falcon_cache_t *cache) {
 	if (!falcon_cache_delete_object(cache, object->name, TRUE))
 		g_warning(_("Failed to delete %s from the cache."), object->name);
-
-	falcon_object_free(object);
 }
 
 static void

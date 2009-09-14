@@ -41,6 +41,19 @@ void falcon_object_free(falcon_object_t *object) {
 	g_free(object);
 }
 
+falcon_object_t *falcon_object_copy(const falcon_object_t *object) {
+	falcon_object_t *ret = NULL;
+
+	g_return_val_if_fail(object, NULL);
+
+	ret = falcon_object_new(object->name);
+	ret->mode = object->mode;
+	ret->size = object->size;
+	ret->time = object->time;
+
+	return ret;
+}
+
 gboolean falcon_object_equal(const falcon_object_t *a,
                              const falcon_object_t *b) {
 	g_return_val_if_fail(a, FALSE);

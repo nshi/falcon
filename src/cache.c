@@ -39,8 +39,10 @@ static void falcon_cache_recursive_delete(falcon_cache_t *cache,
 	do {
 		object = g_queue_find_custom(cache->objects, name,
 		                             falcon_cache_object_startswith);
-		if (object)
+		if (object) {
 			g_queue_remove_all(cache->objects, object->data);
+			falcon_object_free(object->data);
+		}
 	} while (object);
 }
 
@@ -80,18 +82,19 @@ falcon_object_t *falcon_cache_get_object(falcon_cache_t *cache,
 gboolean falcon_cache_add_object(falcon_cache_t *cache,
                                  falcon_object_t *object) {
 	GList *l = NULL;
+	falcon_object_t *dup = falcon_object_copy(object);
 
 	g_return_val_if_fail(cache, FALSE);
 	g_return_val_if_fail(object, FALSE);
 
 	g_mutex_lock(cache->lock);
-	l = g_queue_find_custom(cache->objects, object->name, falcon_object_compare);
+	l = g_queue_find_custom(cache->objects, dup->name, falcon_object_compare);
 
 	if (l) {
 		falcon_object_free(l->data);
-		l->data = object;
+		l->data = dup;
 	} else {
-		g_queue_push_tail(cache->objects, object);
+		g_queue_push_tail(cache->objects, dup);
 	}
 
 	g_mutex_unlock(cache->lock);
@@ -113,6 +116,8 @@ gboolean falcon_cache_delete_object(falcon_cache_t *cache,
 	if (flag)
 		falcon_cache_recursive_delete(cache, name);
 	g_mutex_unlock(cache->lock);
+
+	falcon_object_free(l->data);
 
 	return TRUE;
 }

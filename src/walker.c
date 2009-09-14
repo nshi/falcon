@@ -53,10 +53,7 @@ static void falcon_walker_walk_dir(const gchar *name, falcon_cache_t *cache) {
 	while ((entry = g_dir_read_name(dir))) {
 		/* Should detect OS when building path. */
 		path = g_build_path("/", name, entry, (const gchar *)NULL);
-
-		object = falcon_cache_get_object(cache, path);
-		if (!object)
-			object = falcon_object_new(path);
+		object = falcon_object_new(path);
 		falcon_task_add(object);
 
 		g_free(path);
@@ -73,7 +70,7 @@ static gboolean falcon_walker_runeach(falcon_object_t *object,
 	struct stat info;
 	memset(&info, 0, sizeof(struct stat));
 
-	g_return_val_if_fail(object, -1);
+	g_return_val_if_fail(object, FALSE);
 
 	if (!(object->name))
 		g_warning(_("Object has no path associated with it, skipping..."));
@@ -82,9 +79,10 @@ static gboolean falcon_walker_runeach(falcon_object_t *object,
 
 	if (cached && !g_file_test(object->name, G_FILE_TEST_EXISTS)) {
 		if (S_ISDIR(cached->mode))
-			falcon_handler(object, EVENT_DIR_DELETED, cache);
+			falcon_handler(cached, EVENT_DIR_DELETED, cache);
 		else
-			falcon_handler(object, EVENT_FILE_DELETED, cache);
+			falcon_handler(cached, EVENT_FILE_DELETED, cache);
+		falcon_object_free(object);
 		return TRUE;
 	}
 
@@ -125,6 +123,8 @@ static gboolean falcon_walker_runeach(falcon_object_t *object,
 	if (event != EVENT_NONE)
 		falcon_handler(object, event, cache);
 
+	falcon_object_free(object);
+
 	return TRUE;
 }
 
@@ -151,6 +151,7 @@ void falcon_walker_run(gpointer data, gpointer userdata) {
 		}
 	}
 
+	g_queue_free(objects);
 	falcon_walker_return(error);
 	if (error)
 		g_error_free(error);
