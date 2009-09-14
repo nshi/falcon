@@ -51,8 +51,7 @@ void falcon_set_log_level(GLogLevelFlags log_level) {
 }
 
 gint falcon_object_compare(gconstpointer a, gconstpointer b) {
-	return g_utf8_collate(((const falcon_object_t *)a)->name,
-	                      (const gchar *)b) == 0 ? 0 : -1;
+	return g_strcmp0(((const falcon_object_t *)a)->name, (const gchar *)b);
 }
 
 void falcon_error_report(GError *error) {
