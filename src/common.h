@@ -49,7 +49,7 @@ void falcon_log_handler (const gchar *log_domain, GLogLevelFlags log_level,
                          const gchar *message, gpointer user_data);
 void falcon_set_log_level(GLogLevelFlags log_level);
 
-gint falcon_object_compare(gconstpointer a, gconstpointer b);
+inline gint falcon_object_compare(gconstpointer a, gconstpointer b);
 void falcon_error_report(GError *error);
 
 #endif
