@@ -47,6 +47,7 @@ static void falcon_walker_walk_dir(const gchar *name, falcon_cache_t *cache) {
 	dir = g_dir_open(name, 0, &error);
 	if (!dir) {
 		falcon_error_report(error);
+		g_error_free(error);
 		return;
 	}
 

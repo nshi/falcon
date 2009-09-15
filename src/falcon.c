@@ -26,6 +26,7 @@
 
 #include "falcon.h"
 #include "handler.h"
+#include "watcher.h"
 
 typedef struct {
 	GMutex *lock;
@@ -107,11 +108,25 @@ static void falcon_dispatch(gboolean force) {
 	}
 }
 
+gchar *falcon_normalize_path(const gchar *name) {
+	gchar *path = NULL;
+
+	g_return_val_if_fail(name, NULL);
+
+	if (g_str_has_suffix(name, G_DIR_SEPARATOR_S))
+		path = g_strndup(name, strlen(name) - 1);
+	else
+		path = g_strdup(name);
+
+	return path;
+}
+
 void falcon_init(void) {
 	g_log_set_handler(G_LOG_DOMAIN, G_LOG_LEVEL_MASK, falcon_log_handler, NULL);
 
 	falcon_context_init();
 	falcon_handler_registry_init();
+	falcon_watcher_init(context.cache);
 }
 
 void falcon_shutdown(gboolean wait) {
@@ -126,33 +141,43 @@ void falcon_shutdown(gboolean wait) {
 		g_mutex_unlock(context.lock);
 	}
 
+	falcon_watcher_shutdown();
+	falcon_handler_registry_shutdown();
 	/* Maybe we have to save the cache before freeing. */
 	falcon_context_free(wait);
-	falcon_handler_registry_shutdown();
 }
 
-void falcon_add(const gchar *name, gboolean watch ATTRIBUTE_UNUSED) {
+void falcon_add(const gchar *name, gboolean watch) {
 	falcon_object_t *object = NULL;
+	gchar *path = NULL;
 
 	if (!name) {
 		g_warning(_("Failed to add object, name not provided."));
 		return;
 	}
 
-	g_debug(_("Adding \"%s\" by name."), name);
+	path = falcon_normalize_path(name);
+
+	g_debug(_("Adding \"%s\" by name."), path);
 
 	g_mutex_lock(context.lock);
-	object = falcon_cache_get_object(context.cache, name);
+	object = falcon_cache_get_object(context.cache, path);
 	g_mutex_unlock(context.lock);
 	if (!object) {
-		object = falcon_object_new(name);
+		object = falcon_object_new(path);
+		falcon_object_set_watch(object, watch);
 		falcon_task_add(object);
 	}
+
+	g_free(path);
 }
 
 void falcon_task_add(falcon_object_t *object) {
 	g_return_if_fail(object);
 	g_debug(_("Adding task \"%s\"."), object->name);
+
+	if (object->watch)
+		falcon_watcher_add(object->name);
 
 	g_mutex_lock(context.lock);
 	falcon_push(&context.pending_objects, object);

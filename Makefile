@@ -1,6 +1,6 @@
 CC = gcc
-GLIBFLAGS = `pkg-config --cflags glib-2.0 gthread-2.0`
-GLIBLIBS = `pkg-config --libs glib-2.0 gthread-2.0`
+GLIBFLAGS = `pkg-config --cflags glib-2.0 gthread-2.0 gio-2.0 gobject-2.0`
+GLIBLIBS = `pkg-config --libs glib-2.0 gthread-2.0 gio-2.0 gobject-2.0`
 CFLAGS = -Isrc -DG_LOG_DOMAIN=\"falcon\" -Wall -W -fPIC -g -pg
 CLIBS = -Lsrc -fPIC -g -pg
 SOURCES = src/cache.o \
@@ -10,6 +10,7 @@ SOURCES = src/cache.o \
           src/handler.o \
           src/object.o \
           src/walker.o \
+          src/watcher.o \
           tests/main.o
 
 all: falcon
