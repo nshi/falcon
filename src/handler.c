@@ -48,10 +48,13 @@ falcon_handler_deleted_event(falcon_object_t *object,
 }
 
 static void
-falcon_handler_changed_event(falcon_object_t *object ATTRIBUTE_UNUSED,
+falcon_handler_changed_event(falcon_object_t *object,
                              falcon_event_code_t event ATTRIBUTE_UNUSED,
-                             falcon_cache_t *cache ATTRIBUTE_UNUSED) {
-
+                             falcon_cache_t *cache) {
+	if (!falcon_cache_add_object(cache, object)) {
+		g_warning(_("Failed to change %s in the cache."), object->name);
+		return;
+	}
 }
 
 gboolean falcon_handler_register(falcon_event_code_t event,
