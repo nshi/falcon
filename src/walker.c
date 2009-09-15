@@ -51,8 +51,7 @@ static void falcon_walker_walk_dir(const gchar *name, falcon_cache_t *cache) {
 	}
 
 	while ((entry = g_dir_read_name(dir))) {
-		/* Should detect OS when building path. */
-		path = g_build_path("/", name, entry, (const gchar *)NULL);
+		path = g_build_path(G_DIR_SEPARATOR_S, name, entry, (const gchar *)NULL);
 		object = falcon_object_new(path);
 		falcon_task_add(object);
 
