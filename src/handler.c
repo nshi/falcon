@@ -101,7 +101,15 @@ void falcon_handler_registry_init(void) {
 }
 
 void falcon_handler_registry_shutdown(void) {
+	GHashTableIter iter;
+	gpointer key, value;
+
 	g_return_if_fail(registry);
+
+	g_hash_table_iter_init (&iter, registry);
+	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		g_slist_free((GSList *)value);
+	}
 
 	g_hash_table_unref(registry);
 }
