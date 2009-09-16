@@ -32,6 +32,7 @@ typedef struct {
 	gpointer userdata;
 } falcon_handler_t;
 
+static GMutex *lock = NULL;
 static GHashTable *registry = NULL;
 
 static void
@@ -75,10 +76,12 @@ gboolean falcon_handler_register(falcon_event_code_t events,
 	falcon_event_code_t event = EVENT_NONE;
 	falcon_handler_t *value = NULL;
 
+	g_mutex_lock(lock);
 	if (!registry) {
 		g_critical(_("Registry uninitialized."
 		             " Failed to register handler for event %s"),
 		           falcon_event_to_string(event));
+		g_mutex_unlock(lock);
 		return FALSE;
 	}
 
@@ -93,6 +96,8 @@ gboolean falcon_handler_register(falcon_event_code_t events,
 			g_hash_table_insert(registry, key, list);
 		}
 	}
+
+	g_mutex_unlock(lock);
 	return TRUE;
 }
 
@@ -104,10 +109,12 @@ gboolean falcon_handler_unregister(falcon_event_code_t events,
 	GSList *target = NULL;
 	falcon_event_code_t event = EVENT_NONE;
 
+	g_mutex_lock(lock);
 	if (!registry) {
 		g_critical(_("Registry uninitialized."
 		             " Failed to unregister handler for event %s"),
 		           falcon_event_to_string(event));
+		g_mutex_unlock(lock);
 		return FALSE;
 	}
 
@@ -127,12 +134,15 @@ gboolean falcon_handler_unregister(falcon_event_code_t events,
 		}
 	}
 
+	g_mutex_unlock(lock);
 	return TRUE;
 }
 
 void falcon_handler_registry_init(void) {
+	g_return_if_fail(!lock);
 	g_return_if_fail(!registry);
 
+	lock = g_mutex_new();
 	registry = g_hash_table_new(g_direct_hash, g_direct_equal);
 	g_hash_table_insert(registry, GUINT_TO_POINTER(EVENT_DIR_CREATED), NULL);
 	g_hash_table_insert(registry, GUINT_TO_POINTER(EVENT_DIR_DELETED), NULL);
@@ -147,8 +157,10 @@ void falcon_handler_registry_shutdown(void) {
 	gpointer key, value;
 	GSList *list = NULL;
 
+	g_return_if_fail(lock);
 	g_return_if_fail(registry);
 
+	g_mutex_lock(lock);
 	g_hash_table_iter_init (&iter, registry);
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
 		for (list = (GSList *)value; list; list = g_slist_next(list))
@@ -157,6 +169,9 @@ void falcon_handler_registry_shutdown(void) {
 	}
 
 	g_hash_table_unref(registry);
+	g_mutex_unlock(lock);
+
+	g_mutex_free(lock);
 }
 
 void falcon_handler(falcon_object_t *object, falcon_event_code_t event,
@@ -169,10 +184,12 @@ void falcon_handler(falcon_object_t *object, falcon_event_code_t event,
 	g_message(_("Handling %s for event %s."), object->name,
 	          falcon_event_to_string(event));
 
+	g_mutex_lock(lock);
 	/* Call user handlers. */
 	if (!registry) {
 		g_critical(_("Registry uninitialized. Failed to handle event %s"),
 		           falcon_event_to_string(event));
+		g_mutex_unlock(lock);
 		return;
 	}
 
@@ -191,6 +208,7 @@ void falcon_handler(falcon_object_t *object, falcon_event_code_t event,
 	}
 
 	g_hash_table_insert(registry, GUINT_TO_POINTER(event), list);
+	g_mutex_unlock(lock);
 
 	/* Update cache. */
 	switch (event) {
