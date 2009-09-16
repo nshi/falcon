@@ -31,10 +31,11 @@
 #include "cache.h"
 
 typedef gboolean (*falcon_handler_func)(falcon_object_t *object,
-                                        falcon_event_code_t event);
+                                        falcon_event_code_t event,
+                                        gpointer userdata);
 
 gboolean falcon_handler_register(falcon_event_code_t events,
-                                 falcon_handler_func func);
+                                 falcon_handler_func func, gpointer userdata);
 gboolean falcon_handler_unregister(falcon_event_code_t events,
                                    falcon_handler_func func);
 

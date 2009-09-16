@@ -27,6 +27,11 @@
 #include "handler.h"
 #include "falcon.h"
 
+typedef struct {
+	falcon_handler_func func;
+	gpointer userdata;
+} falcon_handler_t;
+
 static GHashTable *registry = NULL;
 
 static void
@@ -57,12 +62,18 @@ falcon_handler_changed_event(falcon_object_t *object,
 	}
 }
 
+static gint falcon_handler_compare(const falcon_handler_t *a,
+                                   const falcon_handler_func b) {
+	return a->func == b ? 0 : -1;
+}
+
 gboolean falcon_handler_register(falcon_event_code_t events,
-                                 falcon_handler_func func) {
+                                 falcon_handler_func func, gpointer userdata) {
 	GHashTableIter iter;
 	gpointer key;
 	GSList *list = NULL;
 	falcon_event_code_t event = EVENT_NONE;
+	falcon_handler_t *value = NULL;
 
 	if (!registry) {
 		g_critical(_("Registry uninitialized."
@@ -75,7 +86,10 @@ gboolean falcon_handler_register(falcon_event_code_t events,
 	while (g_hash_table_iter_next(&iter, &key, (gpointer *)&list)) {
 		event = GPOINTER_TO_UINT(key);
 		if ((events & event) == event) {
-			list = g_slist_append(list, func);
+			value = g_new0(falcon_handler_t, 1);
+			value->func = func;
+			value->userdata = userdata;
+			list = g_slist_append(list, value);
 			g_hash_table_insert(registry, key, list);
 		}
 	}
@@ -87,6 +101,7 @@ gboolean falcon_handler_unregister(falcon_event_code_t events,
 	GHashTableIter iter;
 	gpointer key;
 	GSList *list = NULL;
+	GSList *target = NULL;
 	falcon_event_code_t event = EVENT_NONE;
 
 	if (!registry) {
@@ -102,8 +117,13 @@ gboolean falcon_handler_unregister(falcon_event_code_t events,
 		if ((events & event) == event) {
 			if (!list)
 				continue;
-			list = g_slist_remove_all(list, func);
-			g_hash_table_insert(registry, key, list);
+			target = g_slist_find_custom(list, func,
+			                             (GCompareFunc)falcon_handler_compare);
+			if (target) {
+				g_free(target->data);
+				list = g_slist_delete_link(list, target);
+				g_hash_table_insert(registry, key, list);
+			}
 		}
 	}
 
@@ -125,11 +145,14 @@ void falcon_handler_registry_init(void) {
 void falcon_handler_registry_shutdown(void) {
 	GHashTableIter iter;
 	gpointer key, value;
+	GSList *list = NULL;
 
 	g_return_if_fail(registry);
 
 	g_hash_table_iter_init (&iter, registry);
 	while (g_hash_table_iter_next (&iter, &key, &value)) {
+		for (list = (GSList *)value; list; list = g_slist_next(list))
+			g_free(list->data);
 		g_slist_free((GSList *)value);
 	}
 
@@ -138,7 +161,7 @@ void falcon_handler_registry_shutdown(void) {
 
 void falcon_handler(falcon_object_t *object, falcon_event_code_t event,
                     falcon_cache_t *cache) {
-	falcon_handler_func func = NULL;
+	falcon_handler_t *value = NULL;
 	GSList *list = NULL;
 	GSList *cur = NULL;
 	GSList *prev = NULL;
@@ -157,8 +180,8 @@ void falcon_handler(falcon_object_t *object, falcon_event_code_t event,
 
 	prev = list;
 	for (cur = prev; cur; cur = g_slist_next(prev)) {
-		func = (falcon_handler_func)cur->data;
-		if (!func(object, event)) {
+		value = (falcon_handler_t *)cur->data;
+		if (!value->func(object, event, value->userdata)) {
 			list = g_slist_delete_link(list, cur);
 			if (cur == prev)
 				prev = list;
