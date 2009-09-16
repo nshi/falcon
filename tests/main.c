@@ -19,7 +19,7 @@ int main(int argc ATTRIBUTE_UNUSED, char **argv) {
 	falcon_init();
 
 	falcon_set_log_level(G_LOG_LEVEL_MESSAGE);
-	falcon_handler_register(EVENT_DIR_CREATED, test_handler);
+	falcon_handler_register(EVENT_ALL, test_handler);
 
 	falcon_add(argv[1], TRUE);
 
