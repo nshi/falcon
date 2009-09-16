@@ -3,30 +3,43 @@
 * General
 ** TODO [#C] Organize error handling code.						:Enhancement:
    Some places use error reporting infrastructure, but some use g_return_*.
-** TODO [#C] Turn off debug message output by default.				:Feature:
-** TODO [#B] Add static keyword to all private functions.				:Bug:
+** DONE [#C] Turn off debug message output by default.				:Feature:
+   CLOSED: [2009-09-14 Mon 20:13]
+** DONE [#B] Add static keyword to all private functions.				:Bug:
+   CLOSED: [2009-09-13 Sun 15:15]
+** TODO [#C] Seperate private and public APIs.					:Enhancement:
+** DONE [#A] Make components thread-safe.								:Bug:
+   CLOSED: [2009-09-15 Tue 21:34]
 * Handler
-** TODO [#B] Handle changed event.									:Feature:
-** TODO [#C] Allow user to pass a userdata to the custom handlers.	:Feature:
+** DONE [#B] Handle changed event.									:Feature:
+   CLOSED: [2009-09-14 Mon 20:12]
+** DONE [#B] Allow user to pass a userdata to the custom handlers.	:Feature:
+   CLOSED: [2009-09-15 Tue 21:24]
 * Walker
 ** DONE [#A] Create object when walking.								:Bug:
    CLOSED: [2009-09-11 Fri 23:55]
 * Cache
-** TODO [#B] Implement trie and use it to store objects.		:Enhancement:
+** TODO [#C] Implement trie and use it to store objects.		:Enhancement:
    This will greatly reduce the time spent on scanning. Currently the speed
    sucks.
 * Falcon
-** ACTIVE [#B] Implement the main function.							:Feature:
+** DONE [#B] Implement the main function.							:Feature:
+   CLOSED: [2009-09-13 Sun 14:40]
 ** DONE [#B] Implement add_dir function.							:Feature:
    CLOSED: [2009-09-12 Sat 00:19]
 ** TODO [#C] Allow setting the watching flag of an object.			:Feature:
    If it's a directory, should propagate the watchability flag to its
    descendents.
-** TODO [#B] Shutdown the system clearly, including clearing all the memory. :Bug:
+** DONE [#B] Shutdown the system clearly, including clearing all the memory. :Bug:
+   CLOSED: [2009-09-13 Sun 15:16]
 * Watcher
-** TODO [#C] Implement watcher.										:Feature:
+** DONE [#B] Implement watcher.										:Feature:
+   CLOSED: [2009-09-15 Tue 18:35]
 * Config
-** TODO [#C] Implement config loader.								:Feature:
-** TODO [#C] Implement config writer.								:Feature:
+** ACTIVE [#B] Implement config loader.								:Feature:
+** ACTIVE [#B] Implement config writer.								:Feature:
 * Events
-** TODO [#C] Allow users to register a handler for all events.		:Feature:
+** DONE [#B] Allow users to register a handler for all events.		:Feature:
+   CLOSED: [2009-09-15 Tue 20:25]
+* Testing
+** TODO [#C] Write unit tests.									:Enhancement:
