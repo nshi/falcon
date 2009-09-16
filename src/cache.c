@@ -112,6 +112,12 @@ gboolean falcon_cache_delete_object(falcon_cache_t *cache,
 
 	g_mutex_lock(cache->lock);
 	l = g_queue_find_custom(cache->objects, name, falcon_object_compare);
+	if (!l) {
+		g_mutex_unlock(cache->lock);
+		g_warning(_("Deleting \"%s\" from cache before creation."), name);
+		return FALSE;
+	}
+
 	g_queue_unlink(cache->objects, l);
 	if (flag)
 		falcon_cache_recursive_delete(cache, name);

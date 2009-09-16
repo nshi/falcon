@@ -28,17 +28,22 @@
 #include "common.h"
 
 typedef enum {
-	EVENT_NONE,
+	EVENT_NONE = 0,
 
 	/* Directory */
-	EVENT_DIR_CREATED,
-	EVENT_DIR_DELETED,
-	EVENT_DIR_CHANGED,
+	EVENT_DIR_CREATED = (1 << 0),
+	EVENT_DIR_DELETED = (1 << 1),
+	EVENT_DIR_CHANGED = (1 << 2),
 
 	/* File */
-	EVENT_FILE_CREATED = 11,
-	EVENT_FILE_DELETED,
-	EVENT_FILE_CHANGED
+	EVENT_FILE_CREATED = (1 << 3),
+	EVENT_FILE_DELETED = (1 << 4),
+	EVENT_FILE_CHANGED = (1 << 5),
+
+	EVENT_DIR_ALL = (EVENT_DIR_CREATED | EVENT_DIR_DELETED | EVENT_DIR_CHANGED),
+	EVENT_FILE_ALL = (EVENT_FILE_CREATED | EVENT_FILE_DELETED
+	                  | EVENT_FILE_CHANGED),
+	EVENT_ALL = (EVENT_DIR_ALL | EVENT_FILE_ALL)
 } falcon_event_code_t;
 
 inline const gchar *falcon_event_to_string(falcon_event_code_t event);
