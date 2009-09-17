@@ -133,6 +133,15 @@ gboolean falcon_cache_delete(falcon_cache_t *cache, const gchar *name,
 	return TRUE;
 }
 
+void falcon_cache_foreach(falcon_cache_t *cache, GFunc func, gpointer userdata) {
+	g_return_if_fail(cache);
+	g_return_if_fail(func);
+
+	g_mutex_lock(cache->lock);
+	g_queue_foreach(cache->objects, func, userdata);
+	g_mutex_unlock(cache->lock);
+}
+
 gboolean falcon_cache_load(falcon_cache_t *cache, const gchar *name) {
 	GKeyFile *file = NULL;
 	gchar **keys = NULL;
@@ -184,8 +193,12 @@ gboolean falcon_cache_load(falcon_cache_t *cache, const gchar *name) {
 		falcon_object_set_watch(object, values[3]);
 
 		falcon_cache_add(cache, object);
+
+		g_free(values);
+		falcon_object_free(object);
 	}
 
+	g_strfreev(keys);
 	g_key_file_free(file);
 
 	return TRUE;
@@ -195,6 +208,7 @@ gboolean falcon_cache_save(const falcon_cache_t *cache, const gchar *name) {
 	GKeyFile *file = NULL;
 	gsize size = 0;
 	FILE *output = NULL;
+	gchar *data = NULL;
 
 	g_return_val_if_fail(cache, FALSE);
 	if (!name)
@@ -205,10 +219,12 @@ gboolean falcon_cache_save(const falcon_cache_t *cache, const gchar *name) {
 	g_queue_foreach(cache->objects, (GFunc)falcon_cache_save_one, file);
 	g_mutex_unlock(cache->lock);
 
+	data = g_key_file_to_data(file, &size, NULL);
 	output = g_fopen(name, "w");
-	fprintf(output, g_key_file_to_data(file, &size, NULL));
+	fprintf(output, data);
 	fclose(output);
 
+	g_free(data);
 	g_key_file_free(file);
 
 	return TRUE;
