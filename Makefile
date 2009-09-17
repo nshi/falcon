@@ -11,17 +11,27 @@ SOURCES = src/cache.o \
           src/handler.o \
           src/object.o \
           src/walker.o \
-          src/watcher.o \
-          tests/main.o
+          src/watcher.o
+FALCON = tests/main.o
+LOADER = tests/loader.o
 
 all: falcon
 
-falcon: $(SOURCES)
-	$(CC) $(GLIBLIBS) $(CLIBS) $(SOURCES) -o $@
+loader: $(LOADER) $(SOURCES)
+	$(CC) $(GLIBLIBS) $(CLIBS) $(LOADER) $(SOURCES) -o $@
+
+falcon: $(FALCON) $(SOURCES)
+	$(CC) $(GLIBLIBS) $(CLIBS) $(FALCON) $(SOURCES) -o $@
+
+$(LOADER): %.o: %.c
+	$(CC) $(GLIBFLAGS) $(CFLAGS) -c $< -o $@
+
+$(FALCON): %.o: %.c
+	$(CC) $(GLIBFLAGS) $(CFLAGS) -c $< -o $@
 
 $(SOURCES): %.o: %.c
 	$(CC) $(GLIBFLAGS) $(CFLAGS) -c $< -o $@
 
 .PHONY: clean
 clean:
-	rm -f tests/*.o src/*.o falcon *.out
+	rm -f tests/*.o src/*.o falcon loader *.out
