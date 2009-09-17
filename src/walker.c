@@ -138,16 +138,19 @@ void falcon_walker_run(gpointer data, gpointer userdata) {
 	if (!cache) {
 		g_set_error(&error, FALCON_WALKER_ERROR, FALCON_ERROR_CRITICAL,
 		            _("Cache not provided. Walker thread returning."));
-	} else {
-		while (!g_queue_is_empty(objects)) {
-			object = g_queue_pop_head(objects);
-			if (!falcon_walker_runeach(object, cache))
-				falcon_failed_add(object);
-		}
+
+		g_queue_free(objects);
+		falcon_walker_return(error);
+		g_error_free(error);
+		return;
+	}
+
+	while (!g_queue_is_empty(objects)) {
+		object = g_queue_pop_head(objects);
+		if (!falcon_walker_runeach(object, cache))
+			falcon_failed_add(object);
 	}
 
 	g_queue_free(objects);
-	falcon_walker_return(error);
-	if (error)
-		g_error_free(error);
+	falcon_walker_return(NULL);
 }
