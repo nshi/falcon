@@ -58,9 +58,8 @@ void falcon_cache_free(falcon_cache_t *cache) {
 
 	g_return_if_fail(cache);
 
-	while ((object = g_queue_pop_head(cache->objects))) {
+	while ((object = g_queue_pop_head(cache->objects)))
 		falcon_object_free(object);
-	}
 	g_queue_free(cache->objects);
 	g_mutex_free(cache->lock);
 	g_free(cache);
