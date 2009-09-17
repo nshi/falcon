@@ -63,7 +63,7 @@ gboolean falcon_object_equal(const falcon_object_t *a,
 	return (a->mode == b->mode
 	        && a->size == b->size
 	        && a->time == b->time
-	        && g_strcmp0(a->name, b->name));
+	        && g_strcmp0(a->name, b->name) == 0);
 }
 
 gboolean falcon_object_isdir(const falcon_object_t *object) {
