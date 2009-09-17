@@ -49,14 +49,19 @@ falcon_object_t *falcon_object_new(const gchar *name);
 void falcon_object_free(falcon_object_t *object);
 falcon_object_t *falcon_object_copy(const falcon_object_t *object);
 
-gboolean falcon_object_equal(const falcon_object_t *a, const falcon_object_t *b);
-gboolean falcon_object_isdir(const falcon_object_t *object);
-void falcon_object_set_mode(falcon_object_t *object, mode_t mode);
-off_t falcon_object_get_size(const falcon_object_t *object);
-void falcon_object_set_size(falcon_object_t *object, off_t size);
-time_t falcon_object_get_time(const falcon_object_t *object);
-void falcon_object_set_time(falcon_object_t *object, time_t time);
-gboolean falcon_object_get_watch(const falcon_object_t *object);
-void falcon_object_set_watch(falcon_object_t *object, gboolean watch);
+/*
+ * This doesn't compare the watchability field, because it's not considered as
+ * an attribute of the actual object on the file system.
+ */
+inline gboolean falcon_object_equal(const falcon_object_t *a,
+                                    const falcon_object_t *b);
+inline gboolean falcon_object_isdir(const falcon_object_t *object);
+inline void falcon_object_set_mode(falcon_object_t *object, mode_t mode);
+inline off_t falcon_object_get_size(const falcon_object_t *object);
+inline void falcon_object_set_size(falcon_object_t *object, off_t size);
+inline time_t falcon_object_get_time(const falcon_object_t *object);
+inline void falcon_object_set_time(falcon_object_t *object, time_t time);
+inline gboolean falcon_object_get_watch(const falcon_object_t *object);
+inline void falcon_object_set_watch(falcon_object_t *object, gboolean watch);
 
 #endif
