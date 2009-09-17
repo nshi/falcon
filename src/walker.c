@@ -104,20 +104,16 @@ static gboolean falcon_walker_runeach(falcon_object_t *object,
 		if (!cached) {
 			event = EVENT_DIR_CREATED;
 			falcon_walker_walk_dir(object->name, cache);
-		} else {
-			if (!falcon_object_equal(object, cached)) {
-				event = EVENT_DIR_CHANGED;
-				falcon_walker_walk_dir(object->name, cache);
-			}
+		} else if (!falcon_object_equal(object, cached)) {
+			event = EVENT_DIR_CHANGED;
+			falcon_walker_walk_dir(object->name, cache);
 		}
 	} else if (g_file_test(object->name, G_FILE_TEST_IS_REGULAR)) {
 		/* Handle file. */
 		if (!cached)
 			event = EVENT_FILE_CREATED;
-		else {
-			if (!falcon_object_equal(object, cached))
-				event = EVENT_FILE_CHANGED;
-		}
+		else if (!falcon_object_equal(object, cached))
+			event = EVENT_FILE_CHANGED;
 	}
 
 	if (event != EVENT_NONE)
@@ -145,9 +141,8 @@ void falcon_walker_run(gpointer data, gpointer userdata) {
 	} else {
 		while (!g_queue_is_empty(objects)) {
 			object = g_queue_pop_head(objects);
-			if (!falcon_walker_runeach(object, cache)) {
+			if (!falcon_walker_runeach(object, cache))
 				falcon_failed_add(object);
-			}
 		}
 	}
 
