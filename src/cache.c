@@ -144,7 +144,8 @@ gboolean falcon_cache_load(falcon_cache_t *cache, const gchar *name) {
 	gsize i;
 
 	g_return_val_if_fail(cache, FALSE);
-	g_return_val_if_fail(name, FALSE);
+	if (!name)
+		return FALSE;
 
 	file = g_key_file_new();
 	if (!g_key_file_load_from_file(file, name, G_KEY_FILE_NONE, &error)) {
@@ -196,7 +197,8 @@ gboolean falcon_cache_save(const falcon_cache_t *cache, const gchar *name) {
 	FILE *output = NULL;
 
 	g_return_val_if_fail(cache, FALSE);
-	g_return_val_if_fail(name, FALSE);
+	if (!name)
+		return FALSE;
 
 	file = g_key_file_new();
 	g_mutex_lock(cache->lock);
