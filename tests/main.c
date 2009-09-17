@@ -17,7 +17,7 @@ int main(int argc ATTRIBUTE_UNUSED, char **argv) {
 	GMainLoop *ml = NULL;
 
 	g_thread_init(NULL);
-	falcon_init();
+	falcon_init("cache.ini");
 
 	falcon_set_log_level(G_LOG_LEVEL_MESSAGE);
 	falcon_handler_register(EVENT_ALL, test_handler, NULL);
@@ -28,7 +28,7 @@ int main(int argc ATTRIBUTE_UNUSED, char **argv) {
 
 	g_main_loop_run(ml);
 	g_main_loop_unref(ml);
-	falcon_shutdown(TRUE);
+	falcon_shutdown("cache.ini", TRUE);
 
 	return 0;
 }
