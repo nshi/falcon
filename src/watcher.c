@@ -42,6 +42,13 @@ typedef struct {
 
 static falcon_watcher_context_t context;
 
+static void falcon_watcher_cancel(gpointer data) {
+	GFileMonitor *monitor = (GFileMonitor *)data;
+
+	g_file_monitor_cancel(monitor);
+	g_object_unref(monitor);
+}
+
 static void falcon_watcher_event(GFileMonitor *monitor ATTRIBUTE_UNUSED,
                                  GFile *entity ATTRIBUTE_UNUSED,
                                  GFile *other ATTRIBUTE_UNUSED,
@@ -121,7 +128,7 @@ void falcon_watcher_init(falcon_cache_t *cache) {
 
 	context.lock = g_mutex_new();
 	context.monitors = g_hash_table_new_full(g_str_hash, g_str_equal,
-	                                         g_free, g_object_unref);
+	                                         g_free, falcon_watcher_cancel);
 	context.cache = cache;
 }
 
@@ -151,6 +158,7 @@ gboolean falcon_watcher_add(const gchar *name) {
 
 	file = g_file_new_for_path(name);
 	monitor = g_file_monitor(file, G_FILE_MONITOR_NONE, NULL, &error);
+	g_object_unref(file);
 	if (!monitor) {
 		error->code = FALCON_ERROR_CRITICAL;
 		falcon_error_report(error);
