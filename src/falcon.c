@@ -99,8 +99,9 @@ static void falcon_dispatch(gboolean force) {
 		g_queue_clear(&context.pending_objects);
 		g_debug(_("Dispatching %d objects to a walker."),
 		        g_queue_get_length(objects));
-	} else
+	} else {
 		g_debug(_("%d objects pending."), length);
+	}
 
 	if (objects) {
 		g_thread_pool_push(context.walkers, objects, NULL);
