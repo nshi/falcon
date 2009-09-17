@@ -10,6 +10,7 @@
 ** TODO [#C] Seperate private and public APIs.					:Enhancement:
 ** DONE [#A] Make components thread-safe.								:Bug:
    CLOSED: [2009-09-15 Tue 21:34]
+** TODO [#C] Clean up the code according to a coding standard.	:Enhancement:
 * Handler
 ** DONE [#B] Handle changed event.									:Feature:
    CLOSED: [2009-09-14 Mon 20:12]
@@ -18,6 +19,11 @@
 * Walker
 ** DONE [#A] Create object when walking.								:Bug:
    CLOSED: [2009-09-11 Fri 23:55]
+** ACTIVE [#B] Allow watching a single directory and its descendants. :Feature:
+   Also allow user to stop watching a descendant of a watched directory. Set
+   watchability in the walker, if the config says that we should watch then
+   watch it, otherwise the watchability setting should be the same as its parent
+   directory.
 * Cache
 ** TODO [#C] Implement trie and use it to store objects.		:Enhancement:
    This will greatly reduce the time spent on scanning. Currently the speed
@@ -32,12 +38,16 @@
    descendents.
 ** DONE [#B] Shutdown the system clearly, including clearing all the memory. :Bug:
    CLOSED: [2009-09-13 Sun 15:16]
+** TODO [#C] Dynamically control the size of the thread pool.	:Enhancement:
 * Watcher
 ** DONE [#B] Implement watcher.										:Feature:
    CLOSED: [2009-09-15 Tue 18:35]
+** TODO [#A] Fix memory leak of monitors.								:Bug:
 * Config
-** ACTIVE [#B] Implement config loader.								:Feature:
-** ACTIVE [#B] Implement config writer.								:Feature:
+** DONE [#B] Implement config loader.								:Feature:
+   CLOSED: [2009-09-17 Thu 02:08]
+** DONE [#B] Implement config writer.								:Feature:
+   CLOSED: [2009-09-17 Thu 02:08]
 * Events
 ** DONE [#B] Allow users to register a handler for all events.		:Feature:
    CLOSED: [2009-09-15 Tue 20:25]
