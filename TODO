@@ -11,6 +11,7 @@
 ** DONE [#A] Make components thread-safe.								:Bug:
    CLOSED: [2009-09-15 Tue 21:34]
 ** TODO [#C] Clean up the code according to a coding standard.	:Enhancement:
+** TODO [#A] Stop casting function pointers!							:Bug:
 * Handler
 ** DONE [#B] Handle changed event.									:Feature:
    CLOSED: [2009-09-14 Mon 20:12]
@@ -19,7 +20,8 @@
 * Walker
 ** DONE [#A] Create object when walking.								:Bug:
    CLOSED: [2009-09-11 Fri 23:55]
-** ACTIVE [#B] Allow watching a single directory and its descendants. :Feature:
+** DONE [#B] Allow watching a single directory and its descendants. :Feature:
+   CLOSED: [2009-09-17 Thu 12:42]
    Also allow user to stop watching a descendant of a watched directory. Set
    watchability in the walker, if the config says that we should watch then
    watch it, otherwise the watchability setting should be the same as its parent
@@ -39,6 +41,7 @@
 ** DONE [#B] Shutdown the system clearly, including clearing all the memory. :Bug:
    CLOSED: [2009-09-13 Sun 15:16]
 ** TODO [#C] Dynamically control the size of the thread pool.	:Enhancement:
+** TODO [#B] Check if the system is initialized first in every function. :Enhancement:
 * Watcher
 ** DONE [#B] Implement watcher.										:Feature:
    CLOSED: [2009-09-15 Tue 18:35]
@@ -51,5 +54,7 @@
 * Events
 ** DONE [#B] Allow users to register a handler for all events.		:Feature:
    CLOSED: [2009-09-15 Tue 20:25]
+* Object
+** TODO [#C] We do need the accessors, we also need it for the name. :Enhancement:
 * Testing
 ** TODO [#C] Write unit tests.									:Enhancement:
