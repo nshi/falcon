@@ -109,7 +109,7 @@ static void falcon_dispatch(gboolean force) {
 	}
 }
 
-gchar *falcon_normalize_path(const gchar *name) {
+static gchar *falcon_normalize_path(const gchar *name) {
 	gchar *path = NULL;
 
 	g_return_val_if_fail(name, NULL);
@@ -122,6 +122,21 @@ gchar *falcon_normalize_path(const gchar *name) {
 	return path;
 }
 
+static void falcon_start_one(const falcon_object_t *object,
+                             gpointer userdata ATTRIBUTE_UNUSED) {
+	falcon_object_t *tmp = falcon_object_copy(object);
+	falcon_task_add(tmp);
+}
+
+static void falcon_start_all(void) {
+	if (!context.lock || !context.cache) {
+		g_critical(_("Please initialize the system first."));
+		return;
+	}
+
+	falcon_cache_foreach(context.cache, (GFunc)falcon_start_one, NULL);
+}
+
 void falcon_init(const gchar *name) {
 	g_log_set_handler(G_LOG_DOMAIN, G_LOG_LEVEL_MASK, falcon_log_handler, NULL);
 
@@ -130,6 +145,7 @@ void falcon_init(const gchar *name) {
 	falcon_watcher_init(context.cache);
 
 	falcon_cache_load(context.cache, name);
+	falcon_start_all();
 }
 
 void falcon_shutdown(const gchar *name, gboolean wait) {
