@@ -32,19 +32,19 @@
 #include "falcon.h"
 #include "handler.h"
 
-static void falcon_walker_walk_dir(const gchar *name, falcon_cache_t *cache) {
+static void falcon_walker_walk_dir(const falcon_object_t *parent,
+                                   const falcon_object_t *cached) {
 	GDir *dir = NULL;
 	GError *error = NULL;
 	const gchar *entry = NULL;
 	gchar *path = NULL;
 	falcon_object_t *object = NULL;
 
-	g_return_if_fail(name);
-	g_return_if_fail(cache);
+	g_return_if_fail(parent);
 
-	g_debug(_("Walking directory \"%s\"."), name);
+	g_debug(_("Walking directory \"%s\"."), parent->name);
 
-	dir = g_dir_open(name, 0, &error);
+	dir = g_dir_open(parent->name, 0, &error);
 	if (!dir) {
 		falcon_error_report(error);
 		g_error_free(error);
@@ -52,8 +52,13 @@ static void falcon_walker_walk_dir(const gchar *name, falcon_cache_t *cache) {
 	}
 
 	while ((entry = g_dir_read_name(dir))) {
-		path = g_build_path(G_DIR_SEPARATOR_S, name, entry, (const gchar *)NULL);
+		path = g_build_path(G_DIR_SEPARATOR_S, parent->name, entry,
+		                    (const gchar *)NULL);
 		object = falcon_object_new(path);
+		if (cached)
+			falcon_object_set_watch(object, falcon_object_get_watch(cached));
+		else
+			falcon_object_set_watch(object, falcon_object_get_watch(parent));
 		falcon_task_add(object);
 
 		g_free(path);
@@ -103,10 +108,10 @@ static gboolean falcon_walker_runeach(falcon_object_t *object,
 		/* Handle directory. */
 		if (!cached) {
 			event = EVENT_DIR_CREATED;
-			falcon_walker_walk_dir(object->name, cache);
+			falcon_walker_walk_dir(object, NULL);
 		} else if (!falcon_object_equal(object, cached)) {
 			event = EVENT_DIR_CHANGED;
-			falcon_walker_walk_dir(object->name, cache);
+			falcon_walker_walk_dir(object, cached);
 		}
 	} else if (g_file_test(object->name, G_FILE_TEST_IS_REGULAR)) {
 		/* Handle file. */
