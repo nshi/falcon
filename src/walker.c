@@ -75,7 +75,7 @@ static gboolean falcon_walker_runeach(falcon_object_t *object,
 	if (!(object->name))
 		g_warning(_("Object has no path associated with it, skipping..."));
 
-	cached = falcon_cache_get_object(cache, object->name);
+	cached = falcon_cache_get(cache, object->name);
 
 	if (cached && !g_file_test(object->name, G_FILE_TEST_EXISTS)) {
 		if (S_ISDIR(cached->mode))

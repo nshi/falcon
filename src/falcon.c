@@ -122,15 +122,17 @@ gchar *falcon_normalize_path(const gchar *name) {
 	return path;
 }
 
-void falcon_init(void) {
+void falcon_init(const gchar *name) {
 	g_log_set_handler(G_LOG_DOMAIN, G_LOG_LEVEL_MASK, falcon_log_handler, NULL);
 
 	falcon_context_init();
 	falcon_handler_registry_init();
 	falcon_watcher_init(context.cache);
+
+	falcon_cache_load(context.cache, name);
 }
 
-void falcon_shutdown(gboolean wait) {
+void falcon_shutdown(const gchar *name, gboolean wait) {
 	if (wait) {
 		g_mutex_lock(context.lock);
 		while (context.running != 0
@@ -141,6 +143,8 @@ void falcon_shutdown(gboolean wait) {
 		}
 		g_mutex_unlock(context.lock);
 	}
+
+	falcon_cache_save(context.cache, name);
 
 	falcon_watcher_shutdown();
 	falcon_handler_registry_shutdown();
@@ -162,7 +166,7 @@ void falcon_add(const gchar *name, gboolean watch) {
 	g_debug(_("Adding \"%s\" by name."), path);
 
 	g_mutex_lock(context.lock);
-	object = falcon_cache_get_object(context.cache, path);
+	object = falcon_cache_get(context.cache, path);
 	g_mutex_unlock(context.lock);
 	if (!object) {
 		object = falcon_object_new(path);

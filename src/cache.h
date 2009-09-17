@@ -40,20 +40,21 @@ void falcon_cache_free(falcon_cache_t *cache);
 /*
  * Gets the object with the given name. If the object is not found, return NULL.
  */
-inline falcon_object_t *falcon_cache_get_object(falcon_cache_t *cache,
-                                                const gchar *name);
+inline falcon_object_t *falcon_cache_get(falcon_cache_t *cache,
+                                         const gchar *name);
 /*
  * Adds an object to the cache. If another object with the same name exists, the
  * old one is updated with the new one.
  */
-gboolean falcon_cache_add_object(falcon_cache_t *cache,
-                                 falcon_object_t *object);
+gboolean falcon_cache_add(falcon_cache_t *cache, falcon_object_t *object);
 /*
  * Deletes an object. If the current object is a directory and flag is TRUE, it
  * also deletes all objects under this directory.
  */
-gboolean falcon_cache_delete_object(falcon_cache_t *cache,
-                                    const gchar *name,
-                                    gboolean flag);
+gboolean falcon_cache_delete(falcon_cache_t *cache, const gchar *name,
+                             gboolean flag);
+
+gboolean falcon_cache_load(falcon_cache_t *cache, const gchar *name);
+gboolean falcon_cache_save(const falcon_cache_t *cache, const gchar *name);
 
 #endif

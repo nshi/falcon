@@ -50,6 +50,7 @@ falcon_object_t *falcon_object_copy(const falcon_object_t *object) {
 	ret->mode = object->mode;
 	ret->size = object->size;
 	ret->time = object->time;
+	ret->watch = object->watch;
 
 	return ret;
 }

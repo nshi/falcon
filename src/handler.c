@@ -39,7 +39,7 @@ static void
 falcon_handler_created_event(falcon_object_t *object,
                              falcon_event_code_t event ATTRIBUTE_UNUSED,
                              falcon_cache_t *cache) {
-	if (!falcon_cache_add_object(cache, object))
+	if (!falcon_cache_add(cache, object))
 		g_warning(_("Failed to add %s to the cache."), object->name);
 }
 
@@ -47,7 +47,7 @@ static void
 falcon_handler_deleted_event(falcon_object_t *object,
                              falcon_event_code_t event ATTRIBUTE_UNUSED,
                              falcon_cache_t *cache) {
-	if (!falcon_cache_delete_object(cache, object->name, TRUE))
+	if (!falcon_cache_delete(cache, object->name, TRUE))
 		g_warning(_("Failed to delete %s from the cache."), object->name);
 }
 
@@ -55,7 +55,7 @@ static void
 falcon_handler_changed_event(falcon_object_t *object,
                              falcon_event_code_t event ATTRIBUTE_UNUSED,
                              falcon_cache_t *cache) {
-	if (!falcon_cache_add_object(cache, object))
+	if (!falcon_cache_add(cache, object))
 		g_warning(_("Failed to change %s in the cache."), object->name);
 }
 
