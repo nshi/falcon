@@ -39,10 +39,8 @@ static void
 falcon_handler_created_event(falcon_object_t *object,
                              falcon_event_code_t event ATTRIBUTE_UNUSED,
                              falcon_cache_t *cache) {
-	if (!falcon_cache_add_object(cache, object)) {
+	if (!falcon_cache_add_object(cache, object))
 		g_warning(_("Failed to add %s to the cache."), object->name);
-		return;
-	}
 }
 
 static void
@@ -57,14 +55,12 @@ static void
 falcon_handler_changed_event(falcon_object_t *object,
                              falcon_event_code_t event ATTRIBUTE_UNUSED,
                              falcon_cache_t *cache) {
-	if (!falcon_cache_add_object(cache, object)) {
+	if (!falcon_cache_add_object(cache, object))
 		g_warning(_("Failed to change %s in the cache."), object->name);
-		return;
-	}
 }
 
-static gint falcon_handler_compare(const falcon_handler_t *a,
-                                   const falcon_handler_func b) {
+static inline gint falcon_handler_compare(const falcon_handler_t *a,
+                                          const falcon_handler_func b) {
 	return a->func == b ? 0 : -1;
 }
 
@@ -121,9 +117,7 @@ gboolean falcon_handler_unregister(falcon_event_code_t events,
 	g_hash_table_iter_init(&iter, registry);
 	while (g_hash_table_iter_next(&iter, &key, (gpointer *)&list)) {
 		event = GPOINTER_TO_UINT(key);
-		if ((events & event) == event) {
-			if (!list)
-				continue;
+		if (list && (events & event) == event) {
 			target = g_slist_find_custom(list, func,
 			                             (GCompareFunc)falcon_handler_compare);
 			if (target) {
