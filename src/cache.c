@@ -49,7 +49,9 @@ static void falcon_cache_recursive_delete(falcon_cache_t *cache,
 	} while (object);
 }
 
-static void falcon_cache_save_one(falcon_object_t *object, GKeyFile *file) {
+static void falcon_cache_save_one(gpointer data, gpointer userdata) {
+	falcon_object_t *object = (falcon_object_t *)data;
+	GKeyFile *file = (GKeyFile *)userdata;
 	gint values[] = {object->mode, object->size, object->time, object->watch};
 	g_key_file_set_integer_list(file, "falcon", object->name, values, 4);
 }
@@ -216,7 +218,7 @@ gboolean falcon_cache_save(const falcon_cache_t *cache, const gchar *name) {
 
 	file = g_key_file_new();
 	g_mutex_lock(cache->lock);
-	g_queue_foreach(cache->objects, (GFunc)falcon_cache_save_one, file);
+	g_queue_foreach(cache->objects, falcon_cache_save_one, file);
 	g_mutex_unlock(cache->lock);
 
 	data = g_key_file_to_data(file, &size, NULL);

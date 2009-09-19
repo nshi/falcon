@@ -59,9 +59,11 @@ falcon_handler_changed_event(falcon_object_t *object,
 		g_warning(_("Failed to change %s in the cache."), object->name);
 }
 
-static inline gint falcon_handler_compare(const falcon_handler_t *a,
-                                          const falcon_handler_func b) {
-	return a->func == b ? 0 : -1;
+static inline gint falcon_handler_compare(gconstpointer a, gconstpointer b) {
+	const falcon_handler_t *handler = (const falcon_handler_t *)a;
+	const falcon_handler_func func = (const falcon_handler_func)b;
+
+	return handler->func == func ? 0 : -1;
 }
 
 gboolean falcon_handler_register(falcon_event_code_t events,
@@ -118,8 +120,7 @@ gboolean falcon_handler_unregister(falcon_event_code_t events,
 	while (g_hash_table_iter_next(&iter, &key, (gpointer *)&list)) {
 		event = GPOINTER_TO_UINT(key);
 		if (list && (events & event) == event) {
-			target = g_slist_find_custom(list, func,
-			                             (GCompareFunc)falcon_handler_compare);
+			target = g_slist_find_custom(list, func, falcon_handler_compare);
 			if (target) {
 				g_free(target->data);
 				list = g_slist_delete_link(list, target);

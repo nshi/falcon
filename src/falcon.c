@@ -122,8 +122,8 @@ static gchar *falcon_normalize_path(const gchar *name) {
 	return path;
 }
 
-static void falcon_start_one(const falcon_object_t *object,
-                             gpointer userdata ATTRIBUTE_UNUSED) {
+static void falcon_start_one(gpointer data, gpointer userdata ATTRIBUTE_UNUSED) {
+	const falcon_object_t *object = (const falcon_object_t *)data;
 	falcon_object_t *tmp = falcon_object_copy(object);
 	falcon_task_add(tmp);
 }
@@ -134,7 +134,7 @@ static void falcon_start_all(void) {
 		return;
 	}
 
-	falcon_cache_foreach(context.cache, (GFunc)falcon_start_one, NULL);
+	falcon_cache_foreach(context.cache, falcon_start_one, NULL);
 }
 
 void falcon_init(const gchar *name) {
