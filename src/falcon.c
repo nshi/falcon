@@ -149,6 +149,12 @@ void falcon_init(const gchar *name) {
 }
 
 void falcon_shutdown(const gchar *name, gboolean wait) {
+	if (!context.lock || !context.cache || !context.walkers
+	    || !context.running_cond) {
+		g_critical(_("Please initialize the system first."));
+		return;
+	}
+
 	if (wait) {
 		g_mutex_lock(context.lock);
 		while (context.running != 0
@@ -172,6 +178,12 @@ void falcon_add(const gchar *name, gboolean watch) {
 	falcon_object_t *object = NULL;
 	gchar *path = NULL;
 
+	if (!context.lock || !context.cache || !context.walkers
+	    || !context.running_cond) {
+		g_critical(_("Please initialize the system first."));
+		return;
+	}
+
 	if (!name) {
 		g_warning(_("Failed to add object, name not provided."));
 		return;
@@ -194,6 +206,12 @@ void falcon_add(const gchar *name, gboolean watch) {
 }
 
 void falcon_task_add(falcon_object_t *object) {
+	if (!context.lock || !context.cache || !context.walkers
+	    || !context.running_cond) {
+		g_critical(_("Please initialize the system first."));
+		return;
+	}
+
 	g_return_if_fail(object);
 	g_debug(_("Adding task \"%s\"."), object->name);
 
@@ -207,6 +225,12 @@ void falcon_task_add(falcon_object_t *object) {
 }
 
 void falcon_failed_add(falcon_object_t *object) {
+	if (!context.lock || !context.cache || !context.walkers
+	    || !context.running_cond) {
+		g_critical(_("Please initialize the system first."));
+		return;
+	}
+
 	g_return_if_fail(object);
 	g_mutex_lock(context.lock);
 	falcon_push(&context.failed_objects, object);
@@ -214,6 +238,12 @@ void falcon_failed_add(falcon_object_t *object) {
 }
 
 void falcon_walker_return(GError *error) {
+	if (!context.lock || !context.cache || !context.walkers
+	    || !context.running_cond) {
+		g_critical(_("Please initialize the system first."));
+		return;
+	}
+
 	falcon_error_report(error);
 
 	g_mutex_lock(context.lock);
