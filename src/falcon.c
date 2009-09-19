@@ -259,9 +259,6 @@ void falcon_task_add(falcon_object_t *object) {
 	g_return_if_fail(object);
 	g_debug(_("Adding task \"%s\"."), object->name);
 
-	if (object->watch)
-		falcon_watcher_add(object->name);
-
 	g_mutex_lock(context.lock);
 	falcon_push(&context.pending_objects, object);
 	falcon_dispatch(FALSE);

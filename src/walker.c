@@ -31,6 +31,7 @@
 #include "events.h"
 #include "falcon.h"
 #include "handler.h"
+#include "watcher.h"
 
 static void falcon_walker_walk_dir(const falcon_object_t *parent,
                                    const falcon_object_t *cached) {
@@ -59,6 +60,10 @@ static void falcon_walker_walk_dir(const falcon_object_t *parent,
 			falcon_object_set_watch(object, falcon_object_get_watch(cached));
 		else
 			falcon_object_set_watch(object, falcon_object_get_watch(parent));
+
+		if (object->watch)
+			falcon_watcher_add(object->name);
+
 		falcon_task_add(object);
 
 		g_free(path);
