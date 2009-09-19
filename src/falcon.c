@@ -205,6 +205,50 @@ void falcon_add(const gchar *name, gboolean watch) {
 	g_free(path);
 }
 
+gboolean falcon_set_watch(const gchar *name, gboolean watch) {
+	falcon_object_t *object = NULL;
+	gchar *path = NULL;
+	gboolean ret = FALSE;
+
+	if (!context.lock || !context.cache || !context.walkers
+	    || !context.running_cond) {
+		g_critical(_("Please initialize the system first."));
+		return FALSE;
+	}
+
+	if (!name) {
+		g_warning(_("Failed to set watchability flag,"
+		            " object name not provided."));
+		return FALSE;
+	}
+
+	path = falcon_normalize_path(name);
+
+	g_debug(_("Setting \"%s\" watchability to %s."), name,
+	        watch ? _("true") : _("false"));
+
+	g_mutex_lock(context.lock);
+	object = falcon_cache_get(context.cache, path);
+	g_mutex_unlock(context.lock);
+	g_free(path);
+	if (!object) {
+		g_warning(_("Failed to set watchability flag,"
+		            " object %s does not exist."), name);
+		return FALSE;
+	}
+
+	falcon_object_set_watch(object, watch);
+	if (watch)
+		ret = falcon_watcher_add(object->name);
+	else
+		ret = falcon_watcher_delete(object->name);
+
+	if (!ret)
+		g_warning(_("Failed to set watchability flag for \"%s\"."), name);
+
+	return ret;
+}
+
 void falcon_task_add(falcon_object_t *object) {
 	if (!context.lock || !context.cache || !context.walkers
 	    || !context.running_cond) {
