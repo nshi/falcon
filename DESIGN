@@ -31,3 +31,6 @@ config -> main (cache) -> watcher
    event handlers.
 ** event handlers: multiple event handlers can be registered, each handles a
    certain kind of event (file creation, deletion, attribute change, etc.).
+** object: we don't need to lock each object.
+   Because the design guarantees that an object is only accessed by a single
+   walker at a time.
