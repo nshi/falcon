@@ -28,6 +28,7 @@
 #include <glib.h>
 
 #include "cache.h"
+#include "object.h"
 
 void falcon_watcher_init(falcon_cache_t *cache);
 void falcon_watcher_shutdown(void);
@@ -37,7 +38,7 @@ void falcon_watcher_shutdown(void);
  * directory automatically. The caller of the functions are responsible for
  * that.
  */
-gboolean falcon_watcher_add(const gchar *name);
-gboolean falcon_watcher_delete(const gchar *name);
+gboolean falcon_watcher_add(const falcon_object_t *object);
+gboolean falcon_watcher_delete(const falcon_object_t *object);
 
 #endif

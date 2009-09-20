@@ -61,9 +61,6 @@ static void falcon_walker_walk_dir(const falcon_object_t *parent,
 		else
 			falcon_object_set_watch(object, falcon_object_get_watch(parent));
 
-		if (object->watch)
-			falcon_watcher_add(object->name);
-
 		falcon_task_add(object);
 
 		g_free(path);
@@ -111,13 +108,14 @@ static gboolean falcon_walker_runeach(falcon_object_t *object,
 		falcon_object_set_time(object, info.st_mtime);
 	if (g_file_test(object->name, G_FILE_TEST_IS_DIR)) {
 		/* Handle directory. */
-		if (!cached) {
+		if (!cached)
 			event = EVENT_DIR_CREATED;
-			falcon_walker_walk_dir(object, NULL);
-		} else if (!falcon_object_equal(object, cached)) {
+		else if (!falcon_object_equal(object, cached))
 			event = EVENT_DIR_CHANGED;
-			falcon_walker_walk_dir(object, cached);
-		}
+
+		falcon_walker_walk_dir(object, cached);
+		if (object->watch)
+			falcon_watcher_add(object);
 	} else if (g_file_test(object->name, G_FILE_TEST_IS_REGULAR)) {
 		/* Handle file. */
 		if (!cached)

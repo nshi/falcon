@@ -29,10 +29,9 @@
 #include <glib-object.h>
 
 #include "watcher.h"
-#include "events.h"
 #include "object.h"
-#include "handler.h"
 #include "common.h"
+#include "falcon.h"
 
 typedef struct {
 	GMutex *lock;
@@ -52,14 +51,11 @@ static void falcon_watcher_cancel(gpointer data) {
 static void falcon_watcher_event(GFileMonitor *monitor ATTRIBUTE_UNUSED,
                                  GFile *entity ATTRIBUTE_UNUSED,
                                  GFile *other ATTRIBUTE_UNUSED,
-                                 GFileMonitorEvent event,
+                                 GFileMonitorEvent event ATTRIBUTE_UNUSED,
                                  gpointer userdata) {
 	gchar *base_path = NULL;
 	GFile *relative_base = NULL;
 	gchar *relative_path = NULL;
-	falcon_event_code_t falcon_event = EVENT_NONE;
-	GFileType type = g_file_query_file_type(entity, G_FILE_QUERY_INFO_NONE,
-	                                        NULL);
 	falcon_object_t *object = NULL;
 	struct stat info;
 	memset(&info, 0, sizeof(struct stat));
@@ -73,50 +69,7 @@ static void falcon_watcher_event(GFileMonitor *monitor ATTRIBUTE_UNUSED,
 	g_free(relative_path);
 	g_object_unref(relative_base);
 
-	if (event != G_FILE_MONITOR_EVENT_DELETED
-	    && g_stat(object->name, &info) != 0) {
-		g_warning(_("Failed to obtain information for object %s, skipping..."),
-		          object->name);
-		falcon_object_free(object);
-		return;
-	}
-
-	falcon_object_set_mode(object, info.st_mode);
-	falcon_object_set_size(object, info.st_size);
-	if (difftime(info.st_mtime, info.st_ctime) < 0.0)
-		falcon_object_set_time(object, info.st_ctime);
-	else
-		falcon_object_set_time(object, info.st_mtime);
-	falcon_object_set_watch(object, TRUE);
-
-	switch (event) {
-	case G_FILE_MONITOR_EVENT_CREATED:
-		if (type == G_FILE_TYPE_DIRECTORY)
-			falcon_event = EVENT_DIR_CREATED;
-		else
-			falcon_event = EVENT_FILE_CREATED;
-		break;
-	case G_FILE_MONITOR_EVENT_DELETED:
-		if (type == G_FILE_TYPE_DIRECTORY)
-			falcon_event = EVENT_DIR_DELETED;
-		else
-			falcon_event = EVENT_FILE_DELETED;
-		break;
-	case G_FILE_MONITOR_EVENT_CHANGES_DONE_HINT:
-	case G_FILE_MONITOR_EVENT_ATTRIBUTE_CHANGED:
-		if (type == G_FILE_TYPE_DIRECTORY)
-			falcon_event = EVENT_DIR_CHANGED;
-		else
-			falcon_event = EVENT_FILE_CHANGED;
-		break;
-	default:
-		break;
-	}
-
-	if (falcon_event != EVENT_NONE)
-		falcon_handler(object, falcon_event, context.cache);
-
-	falcon_object_free(object);
+	falcon_task_add(object);
 }
 
 void falcon_watcher_init(falcon_cache_t *cache) {
@@ -140,23 +93,29 @@ void falcon_watcher_shutdown(void) {
 	g_hash_table_unref(context.monitors);
 }
 
-gboolean falcon_watcher_add(const gchar *name) {
+gboolean falcon_watcher_add(const falcon_object_t *object) {
 	gchar *filename = NULL;
 	GFile *file = NULL;
 	GFileMonitor *monitor = NULL;
 	GError *error = NULL;
 
-	g_return_val_if_fail(name, FALSE);
-
-	if (!g_file_test(name, G_FILE_TEST_IS_DIR))
-		return FALSE;
+	g_return_val_if_fail(object, FALSE);
+	g_return_val_if_fail(S_ISDIR(object->mode), FALSE);
 
 	if (!context.monitors || !context.lock || !context.cache) {
-		g_critical(_("Failed to add %s, watcher not initialized yet."), name);
+		g_critical(_("Failed to add %s, watcher not initialized yet."),
+		           object->name);
 		return FALSE;
 	}
 
-	file = g_file_new_for_path(name);
+	g_mutex_lock(context.lock);
+	if (g_hash_table_lookup(context.monitors, object->name)) {
+		g_mutex_unlock(context.lock);
+		return FALSE;
+	}
+	g_mutex_unlock(context.lock);
+
+	file = g_file_new_for_path(object->name);
 	monitor = g_file_monitor(file, G_FILE_MONITOR_NONE, NULL, &error);
 	g_object_unref(file);
 	if (!monitor) {
@@ -166,7 +125,7 @@ gboolean falcon_watcher_add(const gchar *name) {
 		return FALSE;
 	}
 
-	filename = g_strdup(name);
+	filename = g_strdup(object->name);
 	g_signal_connect(monitor, "changed", (gpointer) falcon_watcher_event,
 	                 filename);
 
@@ -174,26 +133,27 @@ gboolean falcon_watcher_add(const gchar *name) {
 	g_hash_table_insert(context.monitors, filename, monitor);
 	g_mutex_unlock(context.lock);
 
-	g_debug(_("Started watching object %s."), name);
+	g_debug(_("Started watching object %s."), object->name);
 
 	return TRUE;
 }
 
-gboolean falcon_watcher_delete(const gchar *name) {
+gboolean falcon_watcher_delete(const falcon_object_t *object) {
 	gboolean ret = FALSE;
 
-	g_return_val_if_fail(name, FALSE);
+	g_return_val_if_fail(object, FALSE);
 
 	if (!context.monitors || !context.lock || !context.cache) {
-		g_critical(_("Failed to delete %s, watcher not initialized yet."), name);
+		g_critical(_("Failed to delete %s, watcher not initialized yet."),
+		           object->name);
 		return FALSE;
 	}
 
 	g_mutex_lock(context.lock);
-	ret = g_hash_table_remove(context.monitors, name);
+	ret = g_hash_table_remove(context.monitors, object->name);
 	g_mutex_unlock(context.lock);
 
-	g_debug(_("Stopped watching object %s."), name);
+	g_debug(_("Stopped watching object %s."), object->name);
 
 	return ret;
 }

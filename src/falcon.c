@@ -239,9 +239,9 @@ gboolean falcon_set_watch(const gchar *name, gboolean watch) {
 
 	falcon_object_set_watch(object, watch);
 	if (watch)
-		ret = falcon_watcher_add(object->name);
+		ret = falcon_watcher_add(object);
 	else
-		ret = falcon_watcher_delete(object->name);
+		ret = falcon_watcher_delete(object);
 
 	if (!ret)
 		g_warning(_("Failed to set watchability flag for \"%s\"."), name);
