@@ -11,7 +11,9 @@
 ** DONE [#A] Make components thread-safe.								:Bug:
    CLOSED: [2009-09-15 Tue 21:34]
 ** TODO [#C] Clean up the code according to a coding standard.	:Enhancement:
-** TODO [#A] Stop casting function pointers!							:Bug:
+** DONE [#A] Stop casting function pointers!							:Bug:
+   CLOSED: [2009-09-19 Sat 15:28]
+** TODO [#A] It's probably scanning the same file multiple times! :Enhancement:
 * Handler
 ** DONE [#B] Handle changed event.									:Feature:
    CLOSED: [2009-09-14 Mon 20:12]
@@ -35,17 +37,26 @@
    CLOSED: [2009-09-13 Sun 14:40]
 ** DONE [#B] Implement add_dir function.							:Feature:
    CLOSED: [2009-09-12 Sat 00:19]
-** TODO [#C] Allow setting the watching flag of an object.			:Feature:
+** DONE [#C] Allow setting the watching flag of an object.			:Feature:
+   CLOSED: [2009-09-19 Sat 16:00]
    If it's a directory, should propagate the watchability flag to its
    descendents.
 ** DONE [#B] Shutdown the system clearly, including clearing all the memory. :Bug:
    CLOSED: [2009-09-13 Sun 15:16]
 ** TODO [#C] Dynamically control the size of the thread pool.	:Enhancement:
-** TODO [#B] Check if the system is initialized first in every function. :Enhancement:
+** DONE [#B] Check if the system is initialized first in every function. :Enhancement:
+   CLOSED: [2009-09-19 Sat 15:44]
 * Watcher
 ** DONE [#B] Implement watcher.										:Feature:
    CLOSED: [2009-09-15 Tue 18:35]
 ** TODO [#A] Fix memory leak of monitors.								:Bug:
+** DONE [#A] Delegate the handling to a walker.					:Enhancement:
+   CLOSED: [2009-09-19 Sat 23:31]
+   Don't handle changes by itself.
+** TODO [#A] Newly created sub-directories are not watched.				:Bug:
+** ACTIVE [#A] Normalize path before handing it to the walker.			:Bug:
+   If it's an absolute path, do nothing. Otherwise, get the path relative to the
+   current working directory.
 * Config
 ** DONE [#B] Implement config loader.								:Feature:
    CLOSED: [2009-09-17 Thu 02:08]
