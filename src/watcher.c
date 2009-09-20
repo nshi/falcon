@@ -37,6 +37,7 @@ typedef struct {
 	GMutex *lock;
 	GHashTable *monitors;
 	falcon_cache_t *cache;
+	gchar *cwd;
 } falcon_watcher_context_t;
 
 static falcon_watcher_context_t context;
@@ -49,25 +50,28 @@ static void falcon_watcher_cancel(gpointer data) {
 }
 
 static void falcon_watcher_event(GFileMonitor *monitor ATTRIBUTE_UNUSED,
-                                 GFile *entity ATTRIBUTE_UNUSED,
+                                 GFile *entity,
                                  GFile *other ATTRIBUTE_UNUSED,
                                  GFileMonitorEvent event ATTRIBUTE_UNUSED,
                                  gpointer userdata) {
-	gchar *base_path = NULL;
+	gboolean absolute = GPOINTER_TO_INT(userdata);
 	GFile *relative_base = NULL;
-	gchar *relative_path = NULL;
+	gchar *path = NULL;
 	falcon_object_t *object = NULL;
 	struct stat info;
 	memset(&info, 0, sizeof(struct stat));
 
-	base_path = g_path_get_dirname((gchar *)userdata);
-	relative_base = g_file_new_for_path(base_path);
-	relative_path = g_file_get_relative_path(relative_base, entity);
-	g_return_if_fail(relative_path);
-	object = falcon_object_new(relative_path);
-	g_free(base_path);
-	g_free(relative_path);
-	g_object_unref(relative_base);
+	if (absolute) {
+		path = g_file_get_path(entity);
+	} else {
+		relative_base = g_file_new_for_path(context.cwd);
+		path = g_file_get_relative_path(relative_base, entity);
+		g_return_if_fail(path);
+		g_object_unref(relative_base);
+	}
+	object = falcon_object_new(path);
+	falcon_object_set_watch(object, TRUE);
+	g_free(path);
 
 	falcon_task_add(object);
 }
@@ -76,6 +80,7 @@ void falcon_watcher_init(falcon_cache_t *cache) {
 	g_return_if_fail(!context.lock);
 	g_return_if_fail(!context.monitors);
 	g_return_if_fail(!context.cache);
+	g_return_if_fail(!context.cwd);
 
 	g_type_init();
 
@@ -83,18 +88,20 @@ void falcon_watcher_init(falcon_cache_t *cache) {
 	context.monitors = g_hash_table_new_full(g_str_hash, g_str_equal,
 	                                         g_free, falcon_watcher_cancel);
 	context.cache = cache;
+	context.cwd = g_get_current_dir();
 }
 
 void falcon_watcher_shutdown(void) {
 	g_return_if_fail(context.lock);
 	g_return_if_fail(context.monitors);
+	g_return_if_fail(context.cwd);
 
 	g_mutex_free(context.lock);
 	g_hash_table_unref(context.monitors);
+	g_free(context.cwd);
 }
 
 gboolean falcon_watcher_add(const falcon_object_t *object) {
-	gchar *filename = NULL;
 	GFile *file = NULL;
 	GFileMonitor *monitor = NULL;
 	GError *error = NULL;
@@ -125,12 +132,11 @@ gboolean falcon_watcher_add(const falcon_object_t *object) {
 		return FALSE;
 	}
 
-	filename = g_strdup(object->name);
 	g_signal_connect(monitor, "changed", (gpointer) falcon_watcher_event,
-	                 filename);
+	                 GINT_TO_POINTER(g_path_is_absolute(object->name)));
 
 	g_mutex_lock(context.lock);
-	g_hash_table_insert(context.monitors, filename, monitor);
+	g_hash_table_insert(context.monitors, g_strdup(object->name), monitor);
 	g_mutex_unlock(context.lock);
 
 	g_debug(_("Started watching object %s."), object->name);
