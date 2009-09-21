@@ -129,11 +129,7 @@ static void falcon_start_one(gpointer data, gpointer userdata ATTRIBUTE_UNUSED) 
 }
 
 static void falcon_start_all(void) {
-	if (!context.lock || !context.cache) {
-		g_critical(_("Please initialize the system first."));
-		return;
-	}
-
+	/* Wait until trie is implemented. */
 	falcon_cache_foreach(context.cache, falcon_start_one, NULL);
 }
 
