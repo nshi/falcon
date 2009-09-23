@@ -27,55 +27,55 @@ int main(int argc __attribute__((__unused__)),
 
 	if (trie_add(root, "/", NULL)) {
 		printf("Failed to add \"%s\" to trie.\n", "/");
-		trie_free(root);
+		trie_free(root, NULL);
 		return 1;
 	}
 
 	if (!trie_add(root, "", NULL)) {
 		printf("Failed to add \"%s\" to trie.\n", "EMPTY");
-		trie_free(root);
+		trie_free(root, NULL);
 		return 1;
 	}
 
 	if (trie_add(root, "/////", NULL)) {
 		printf("Failed to add \"%s\" to trie.\n", "/////");
-		trie_free(root);
+		trie_free(root, NULL);
 		return 1;
 	}
 
 	if (trie_add(root, "/this/is/very/deep////", NULL)) {
 		printf("Failed to add \"%s\" to trie.\n", "/this/is/very/deep");
-		trie_free(root);
+		trie_free(root, NULL);
 		return 1;
 	}
 
 	if (trie_add(root, "/this/is////very/shallow", NULL)) {
 		printf("Failed to add \"%s\" to trie.\n", "/this/is/very/shallow");
-		trie_free(root);
+		trie_free(root, NULL);
 		return 1;
 	}
 
 	if (trie_add(root, "relative", NULL)) {
 		printf("Failed to add \"%s\" to trie.\n", "relative");
-		trie_free(root);
+		trie_free(root, NULL);
 		return 1;
 	}
 
 	if (trie_add(root, "relative/path", NULL)) {
 		printf("Failed to add \"%s\" to trie.\n", "relative/path");
-		trie_free(root);
+		trie_free(root, NULL);
 		return 1;
 	}
 
 	if (trie_add(root, "relative/last//", NULL)) {
 		printf("Failed to add \"%s\" to trie.\n", "relative/last//");
-		trie_free(root);
+		trie_free(root, NULL);
 		return 1;
 	}
 
 	if (trie_add(root, "relative//name", NULL)) {
 		printf("Failed to add \"%s\" to trie.\n", "relative//name");
-		trie_free(root);
+		trie_free(root, NULL);
 		return 1;
 	}
 
@@ -83,31 +83,31 @@ int main(int argc __attribute__((__unused__)),
 	printf("\n");
 
 	/* Deletions */
-	if (trie_delete(root, "/this/is/very/shallow")) {
+	if (trie_delete(root, "/this/is/very/shallow", NULL)) {
 		printf("Failed to delete \"%s\".\n", "/this/is/very/shallow");
-		trie_free(root);
+		trie_free(root, NULL);
 		return 1;
 	}
 
-	if (!trie_delete(root, "/this/is/very/narrow/haha")) {
+	if (!trie_delete(root, "/this/is/very/narrow/haha", NULL)) {
 		printf("Failed to delete \"%s\".\n", "/this/is/very/narrow/haha");
-		trie_free(root);
+		trie_free(root, NULL);
 		return 1;
 	}
 
 	traverse(root);
 	printf("\n");
 
-	if (trie_delete(root, "relative")) {
+	if (trie_delete(root, "relative", NULL)) {
 		printf("Failed to delete \"%s\".\n", "relative");
-		trie_free(root);
+		trie_free(root, NULL);
 		return 1;
 	}
 
 	traverse(root);
 	printf("\n");
 
-	trie_free(root);
+	trie_free(root, NULL);
 
 	return 0;
 }

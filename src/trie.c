@@ -147,7 +147,7 @@ trie_node_t *trie_new(const char *delim, size_t len) {
 	return root;
 }
 
-void trie_free(trie_node_t *root) {
+void trie_free(trie_node_t *root, free_func func) {
 	trie_node_t *cur = NULL;
 	trie_node_t *next = NULL;
 
@@ -157,10 +157,12 @@ void trie_free(trie_node_t *root) {
 	cur = root->child;
 	while (cur) {
 		next = cur->next;
-		trie_free(cur);
+		trie_free(cur, func);
 		cur = next;
 	}
 
+	if (func)
+		func(root->data);
 	free(root->key);
 	free(root->delim);
 	free(root);
@@ -176,7 +178,7 @@ int trie_add(trie_node_t *root, const char *key, void *data) {
 	return 0;
 }
 
-int trie_delete(trie_node_t *root, const char *key) {
+int trie_delete(trie_node_t *root, const char *key, free_func func) {
 	trie_node_t *node = find_and_create(root, key, 0);
 	if (!node)
 		return -1;
@@ -187,17 +189,13 @@ int trie_delete(trie_node_t *root, const char *key) {
 		node->prev->next = node->next;
 	if (node->next)
 		node->next->prev = node->prev;
-	trie_free(node);
+	trie_free(node, func);
 
 	return 0;
 }
 
-void *trie_find(trie_node_t *root, const char *key) {
-	trie_node_t *node = find_and_create(root, key, 0);
-	if (!node)
-		return NULL;
-
-	return node->data;
+trie_node_t *trie_find(trie_node_t *root, const char *key) {
+	return find_and_create(root, key, 0);
 }
 
 const char *trie_key(const trie_node_t *node) {
@@ -212,6 +210,13 @@ void *trie_data(const trie_node_t *node) {
 		return NULL;
 
 	return node->data;
+}
+
+void trie_set_data(trie_node_t *node, void *data) {
+	if (!node)
+		return;
+
+	node->data = data;
 }
 
 trie_node_t *trie_parent(const trie_node_t *node) {
