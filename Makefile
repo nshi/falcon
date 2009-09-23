@@ -15,12 +15,12 @@ SOURCES = src/cache.o \
           src/trie.o
 FALCON = tests/main.o
 LOADER = tests/loader.o
-TRIE = tests/trie.o
+TRIE = src/trie.o tests/trie.o
 
 all: falcon
 
-trie: $(TRIE) $(SOURCES)
-	$(CC) $(GLIBLIBS) $(CLIBS) $(TRIE) $(SOURCES) -o $@
+trie: $(TRIE)
+	$(CC) $(TRIE) -o $@
 
 loader: $(LOADER) $(SOURCES)
 	$(CC) $(GLIBLIBS) $(CLIBS) $(LOADER) $(SOURCES) -o $@
