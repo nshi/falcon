@@ -14,6 +14,7 @@
 ** DONE [#A] Stop casting function pointers!							:Bug:
    CLOSED: [2009-09-19 Sat 15:28]
 ** TODO [#A] It's probably scanning the same file multiple times! :Enhancement:
+   Wait until trie is implemented.
 * Handler
 ** DONE [#B] Handle changed event.									:Feature:
    CLOSED: [2009-09-14 Mon 20:12]
@@ -29,7 +30,7 @@
    watch it, otherwise the watchability setting should be the same as its parent
    directory.
 * Cache
-** TODO [#C] Implement trie and use it to store objects.		:Enhancement:
+** ACTIVE [#A] Implement trie and use it to store objects.		:Enhancement:
    This will greatly reduce the time spent on scanning. Currently the speed
    sucks.
 * Falcon
@@ -46,6 +47,8 @@
 ** TODO [#C] Dynamically control the size of the thread pool.	:Enhancement:
 ** DONE [#B] Check if the system is initialized first in every function. :Enhancement:
    CLOSED: [2009-09-19 Sat 15:44]
+** TODO [#A] Fix changing watchability flag.							:Bug:
+   Need to recursively change all its descendants.
 * Watcher
 ** DONE [#B] Implement watcher.										:Feature:
    CLOSED: [2009-09-15 Tue 18:35]
@@ -53,8 +56,10 @@
 ** DONE [#A] Delegate the handling to a walker.					:Enhancement:
    CLOSED: [2009-09-19 Sat 23:31]
    Don't handle changes by itself.
-** TODO [#A] Newly created sub-directories are not watched.				:Bug:
-** ACTIVE [#A] Normalize path before handing it to the walker.			:Bug:
+** DONE [#A] Newly created sub-directories are not watched.				:Bug:
+   CLOSED: [2009-09-20 Sun 13:29]
+** DONE [#A] Normalize path before handing it to the walker.			:Bug:
+   CLOSED: [2009-09-20 Sun 13:20]
    If it's an absolute path, do nothing. Otherwise, get the path relative to the
    current working directory.
 * Config
@@ -67,5 +72,7 @@
    CLOSED: [2009-09-15 Tue 20:25]
 * Object
 ** TODO [#C] We do need the accessors, we also need it for the name. :Enhancement:
+* Trie
+** ACTIVE [#A] Implement trie_foreach with depth-first traversal.	:Feature:
 * Testing
 ** TODO [#C] Write unit tests.									:Enhancement:
