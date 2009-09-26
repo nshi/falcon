@@ -34,11 +34,11 @@
 #define _TRIE_H_
 
 typedef struct trie_node trie_node_t;
-typedef void (*free_func)(void *data);
+typedef void (*trie_free_func)(void *data);
 typedef void (*trie_func)(trie_node_t *node, void *udata);
 
 trie_node_t *trie_new(const char *delim, size_t len);
-void trie_free(trie_node_t *root, free_func func);
+void trie_free(trie_node_t *root, trie_free_func func);
 
 /*
  * Adds a node with key to the tree. If the node already exists, it updates the
@@ -53,7 +53,7 @@ int trie_add(trie_node_t *root, const char *key, void *data);
  *
  * 0 is returned on success, otherwise -1 is returned.
  */
-int trie_delete(trie_node_t *root, const char *key, free_func func);
+int trie_delete(trie_node_t *root, const char *key, trie_free_func func);
 trie_node_t *trie_find(trie_node_t *root, const char *key);
 /* Applies func to each node. Traverses the tree in depth-first pattern. */
 void trie_foreach(trie_node_t *root, trie_func func, void *udata);

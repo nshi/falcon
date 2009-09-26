@@ -154,7 +154,7 @@ trie_node_t *trie_new(const char *delim, size_t len) {
 	return root;
 }
 
-void trie_free(trie_node_t *root, free_func func) {
+void trie_free(trie_node_t *root, trie_free_func func) {
 	trie_node_t *cur = NULL;
 	trie_node_t *next = NULL;
 
@@ -185,7 +185,7 @@ int trie_add(trie_node_t *root, const char *key, void *data) {
 	return 0;
 }
 
-int trie_delete(trie_node_t *root, const char *key, free_func func) {
+int trie_delete(trie_node_t *root, const char *key, trie_free_func func) {
 	trie_node_t *node = find_and_create(root, key, 0);
 	if (!node)
 		return -1;
