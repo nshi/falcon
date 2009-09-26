@@ -2,18 +2,23 @@
 
 #include "trie.h"
 
-void traverse(const trie_node_t *root) {
-	const trie_node_t *cur = root;
+void traverse(const trie_node_t *node) {
+	const trie_node_t *cur = node;
 
 	while (cur) {
 		printf(" %s", trie_key(cur) ? trie_key(cur) : "ROOT");
 		if (trie_child(cur)) {
-			printf(" has child: (");
+			printf(" (");
 			traverse(trie_child(cur));
 			printf(")");
 		}
 		cur = trie_next(cur);
 	}
+}
+
+void my_traverse(trie_node_t *node, void *data __attribute__((__unused__))) {
+	printf("%s", trie_key(node) ? trie_key(node) : "ROOT");
+	printf(" -> ");
 }
 
 int main(int argc __attribute__((__unused__)),
@@ -81,6 +86,8 @@ int main(int argc __attribute__((__unused__)),
 
 	traverse(root);
 	printf("\n");
+	trie_foreach(root, my_traverse, NULL);
+	printf("\n\n");
 
 	/* Deletions */
 	if (trie_delete(root, "/this/is/very/shallow", NULL)) {
@@ -97,6 +104,8 @@ int main(int argc __attribute__((__unused__)),
 
 	traverse(root);
 	printf("\n");
+	trie_foreach(root, my_traverse, NULL);
+	printf("\n\n");
 
 	if (trie_delete(root, "relative", NULL)) {
 		printf("Failed to delete \"%s\".\n", "relative");
@@ -106,6 +115,8 @@ int main(int argc __attribute__((__unused__)),
 
 	traverse(root);
 	printf("\n");
+	trie_foreach(root, my_traverse, NULL);
+	printf("\n\n");
 
 	trie_free(root, NULL);
 
