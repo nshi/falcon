@@ -127,6 +127,13 @@ static trie_node_t *find_and_create(trie_node_t *root, const char *key,
 	return cur;
 }
 
+static void foreach(trie_node_t *node, trie_func func, void *udata) {
+	for (; node; node = node->next) {
+		foreach(node->child, func, udata);
+		func(node, udata);
+	}
+}
+
 trie_node_t *trie_new(const char *delim, size_t len) {
 	trie_node_t *root = NULL;
 
@@ -196,6 +203,13 @@ int trie_delete(trie_node_t *root, const char *key, free_func func) {
 
 trie_node_t *trie_find(trie_node_t *root, const char *key) {
 	return find_and_create(root, key, 0);
+}
+
+void trie_foreach(trie_node_t *root, trie_func func, void *udata) {
+	if (!root || !func)
+		return;
+
+	foreach(root->child, func, udata);
 }
 
 const char *trie_key(const trie_node_t *node) {
