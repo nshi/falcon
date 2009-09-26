@@ -168,7 +168,7 @@ void trie_free(trie_node_t *root, trie_free_func func) {
 		cur = next;
 	}
 
-	if (func)
+	if (func && root->data)
 		func(root->data);
 	free(root->key);
 	free(root->delim);
