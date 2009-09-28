@@ -13,7 +13,8 @@
 ** TODO [#C] Clean up the code according to a coding standard.	:Enhancement:
 ** DONE [#A] Stop casting function pointers!							:Bug:
    CLOSED: [2009-09-19 Sat 15:28]
-** TODO [#A] It's probably scanning the same file multiple times! :Enhancement:
+** DONE [#A] It's probably scanning the same file multiple times! :Enhancement:
+   CLOSED: [2009-09-28 Mon 17:34]
    Wait until trie is implemented.
 * Handler
 ** DONE [#B] Handle changed event.									:Feature:
@@ -29,8 +30,12 @@
    watchability in the walker, if the config says that we should watch then
    watch it, otherwise the watchability setting should be the same as its parent
    directory.
+** TODO [#B] Sadly that the system is still not fast enough.	:Enhancement:
+   Don't open the same file multiple times, avoid stat() overhead. Pass the dirp
+   around.
 * Cache
-** ACTIVE [#A] Implement trie and use it to store objects.		:Enhancement:
+** DONE [#A] Implement trie and use it to store objects.		:Enhancement:
+   CLOSED: [2009-09-28 Mon 17:34]
    This will greatly reduce the time spent on scanning. Currently the speed
    sucks.
 * Falcon
@@ -47,7 +52,7 @@
 ** TODO [#C] Dynamically control the size of the thread pool.	:Enhancement:
 ** DONE [#B] Check if the system is initialized first in every function. :Enhancement:
    CLOSED: [2009-09-19 Sat 15:44]
-** TODO [#A] Fix changing watchability flag.							:Bug:
+** ACTIVE [#A] Fix changing watchability flag.							:Bug:
    Need to recursively change all its descendants.
 * Watcher
 ** DONE [#B] Implement watcher.										:Feature:
@@ -73,6 +78,7 @@
 * Object
 ** TODO [#C] We do need the accessors, we also need it for the name. :Enhancement:
 * Trie
-** ACTIVE [#A] Implement trie_foreach with depth-first traversal.	:Feature:
+** DONE [#A] Implement trie_foreach with depth-first traversal.		:Feature:
+   CLOSED: [2009-09-28 Mon 17:34]
 * Testing
 ** TODO [#C] Write unit tests.									:Enhancement:
