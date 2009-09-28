@@ -130,7 +130,7 @@ static void falcon_start_one(gpointer data, gpointer userdata ATTRIBUTE_UNUSED) 
 
 static void falcon_start_all(void) {
 	/* Wait until trie is implemented. */
-	falcon_cache_foreach(context.cache, falcon_start_one, NULL);
+	falcon_cache_top_foreach(context.cache, falcon_start_one, NULL);
 }
 
 void falcon_init(const gchar *name) {

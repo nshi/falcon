@@ -28,10 +28,11 @@
 #include <glib.h>
 
 #include "common.h"
+#include "trie.h"
 
 typedef struct {
 	GMutex *lock;
-	GQueue *objects;
+	trie_node_t *objects;
 } falcon_cache_t;
 
 falcon_cache_t *falcon_cache_new(void);
@@ -48,14 +49,15 @@ inline falcon_object_t *falcon_cache_get(falcon_cache_t *cache,
  */
 gboolean falcon_cache_add(falcon_cache_t *cache, falcon_object_t *object);
 /*
- * Deletes an object. If the current object is a directory and flag is TRUE, it
- * also deletes all objects under this directory.
+ * Deletes an object.
  */
-gboolean falcon_cache_delete(falcon_cache_t *cache, const gchar *name,
-                             gboolean flag);
-void falcon_cache_foreach(falcon_cache_t *cache, GFunc func, gpointer userdata);
+gboolean falcon_cache_delete(falcon_cache_t *cache, const gchar *name);
+void falcon_cache_top_foreach(falcon_cache_t *cache, GFunc func,
+                              gpointer userdata);
 
 gboolean falcon_cache_load(falcon_cache_t *cache, const gchar *name);
 gboolean falcon_cache_save(const falcon_cache_t *cache, const gchar *name);
+
+inline void falcon_cache_print(const falcon_cache_t *cache);
 
 #endif

@@ -27,82 +27,77 @@
 
 #include "cache.h"
 
-static gint falcon_cache_object_startswith(gconstpointer a, gconstpointer b) {
-	return g_str_has_prefix(((const falcon_object_t *)a)->name,
-	                        (const gchar *)b) ? 0 : -1;
-}
-
-static void falcon_cache_recursive_delete(falcon_cache_t *cache,
-                                          const gchar *name) {
-	GList *object = NULL;
-
-	g_return_if_fail(cache);
-	g_return_if_fail(name);
-
-	do {
-		object = g_queue_find_custom(cache->objects, name,
-		                             falcon_cache_object_startswith);
-		if (object) {
-			g_queue_unlink(cache->objects, object);
-			falcon_object_free(object->data);
-		}
-	} while (object);
-}
-
-static void falcon_cache_save_one(gpointer data, gpointer userdata) {
-	falcon_object_t *object = (falcon_object_t *)data;
+static void falcon_cache_save_one(trie_node_t *node, void *userdata) {
+	falcon_object_t *object = (falcon_object_t *)trie_data(node);
 	GKeyFile *file = (GKeyFile *)userdata;
 	gint values[] = {object->mode, object->size, object->time, object->watch};
 	g_key_file_set_integer_list(file, "falcon", object->name, values, 4);
 }
 
+static void recursive_print(const trie_node_t *node, guint l) {
+	const trie_node_t *cur = node;
+	guint i = 0;
+	guint len = 0;
+
+	while (cur) {
+		printf("%s", trie_key(cur) ? trie_key(cur) : "ROOT");
+		if (trie_child(cur)) {
+			if (trie_key(cur))
+				len = strlen(trie_key(cur)) + 2;
+			printf("->");
+			recursive_print(trie_child(cur), l + len);
+		}
+		if (trie_next(cur))
+			printf("\n");
+		for (i = 0; i < l; i++)
+			printf(" ");
+		cur = trie_next(cur);
+	}
+}
+
 falcon_cache_t *falcon_cache_new(void) {
 	falcon_cache_t *cache = g_new0(falcon_cache_t, 1);
 	cache->lock = g_mutex_new();
-	cache->objects = g_queue_new();
+	cache->objects = trie_new(G_DIR_SEPARATOR_S, 1);
 	return cache;
 }
 
 void falcon_cache_free(falcon_cache_t *cache) {
-	falcon_object_t *object = NULL;
-
 	g_return_if_fail(cache);
 
-	while ((object = g_queue_pop_head(cache->objects)))
-		falcon_object_free(object);
-	g_queue_free(cache->objects);
+	trie_free(cache->objects, (trie_free_func)falcon_object_free);
 	g_mutex_free(cache->lock);
 	g_free(cache);
 }
 
-falcon_object_t *falcon_cache_get(falcon_cache_t *cache,
-                                         const gchar *name) {
-	GList *object = NULL;
+falcon_object_t *falcon_cache_get(falcon_cache_t *cache, const gchar *name) {
+	trie_node_t *node = NULL;
 
 	g_return_val_if_fail(cache, NULL);
 	g_return_val_if_fail(name, NULL);
 
 	g_mutex_lock(cache->lock);
-	object = g_queue_find_custom(cache->objects, name, falcon_object_compare);
+	node = trie_find(cache->objects, name);
 	g_mutex_unlock(cache->lock);
-	return object ? object->data : NULL;
+	return trie_data(node);
 }
 
 gboolean falcon_cache_add(falcon_cache_t *cache, falcon_object_t *object) {
-	GList *l = NULL;
+	trie_node_t *old_node = NULL;
+	falcon_object_t *old = NULL;
 	falcon_object_t *dup = falcon_object_copy(object);
 
 	g_return_val_if_fail(cache, FALSE);
 	g_return_val_if_fail(object, FALSE);
 
 	g_mutex_lock(cache->lock);
-	l = g_queue_find_custom(cache->objects, dup->name, falcon_object_compare);
+	old_node = trie_find(cache->objects, dup->name);
 
-	if (l) {
-		falcon_object_free(l->data);
-		l->data = dup;
+	if (old_node && (old = trie_data(old_node))) {
+		falcon_object_free(old);
+		trie_set_data(old_node, dup);
 	} else {
-		g_queue_push_tail(cache->objects, dup);
+		trie_add(cache->objects, dup->name, dup);
 	}
 
 	g_mutex_unlock(cache->lock);
@@ -110,37 +105,36 @@ gboolean falcon_cache_add(falcon_cache_t *cache, falcon_object_t *object) {
 	return TRUE;
 }
 
-gboolean falcon_cache_delete(falcon_cache_t *cache, const gchar *name,
-                             gboolean flag) {
-	GList *l = NULL;
+gboolean falcon_cache_delete(falcon_cache_t *cache, const gchar *name) {
+	trie_node_t *node = NULL;
 
 	g_return_val_if_fail(cache, FALSE);
 	g_return_val_if_fail(name, FALSE);
 
 	g_mutex_lock(cache->lock);
-	l = g_queue_find_custom(cache->objects, name, falcon_object_compare);
-	if (!l) {
+	node = trie_find(cache->objects, name);
+	if (!node) {
 		g_mutex_unlock(cache->lock);
 		g_warning(_("Deleting \"%s\" from cache before creation."), name);
 		return FALSE;
 	}
 
-	g_queue_unlink(cache->objects, l);
-	if (flag)
-		falcon_cache_recursive_delete(cache, name);
+	trie_delete(cache->objects, name, (trie_free_func)falcon_object_free);
 	g_mutex_unlock(cache->lock);
-
-	falcon_object_free(l->data);
 
 	return TRUE;
 }
 
-void falcon_cache_foreach(falcon_cache_t *cache, GFunc func, gpointer userdata) {
+void falcon_cache_top_foreach(falcon_cache_t *cache, GFunc func,
+                              gpointer userdata) {
+	trie_node_t *node = NULL;
+
 	g_return_if_fail(cache);
 	g_return_if_fail(func);
 
 	g_mutex_lock(cache->lock);
-	g_queue_foreach(cache->objects, func, userdata);
+	for (node = trie_child(cache->objects); node; node = trie_next(node))
+		func(trie_data(node), userdata);
 	g_mutex_unlock(cache->lock);
 }
 
@@ -218,7 +212,7 @@ gboolean falcon_cache_save(const falcon_cache_t *cache, const gchar *name) {
 
 	file = g_key_file_new();
 	g_mutex_lock(cache->lock);
-	g_queue_foreach(cache->objects, falcon_cache_save_one, file);
+	trie_foreach(cache->objects, falcon_cache_save_one, file);
 	g_mutex_unlock(cache->lock);
 
 	data = g_key_file_to_data(file, &size, NULL);
@@ -230,4 +224,8 @@ gboolean falcon_cache_save(const falcon_cache_t *cache, const gchar *name) {
 	g_key_file_free(file);
 
 	return TRUE;
+}
+
+void falcon_cache_print(const falcon_cache_t *cache) {
+	recursive_print(cache->objects, 6);
 }
