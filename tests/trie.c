@@ -1,18 +1,25 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "trie.h"
 
-void traverse(const trie_node_t *node) {
-	const trie_node_t *cur = node;
+void traverse(const trie_node_t *node, unsigned int l) {
+	unsigned int i = 0;
+	unsigned int len = 0;
 
-	while (cur) {
-		printf(" %s", trie_key(cur) ? trie_key(cur) : "ROOT");
-		if (trie_child(cur)) {
-			printf(" (");
-			traverse(trie_child(cur));
-			printf(")");
+	while (node) {
+		printf("%s", trie_key(node) ? trie_key(node) : "ROOT");
+		if (trie_child(node)) {
+			if (trie_key(node))
+				len = strlen(trie_key(node)) + 2;
+			printf("->");
+			traverse(trie_child(node), l + len);
 		}
-		cur = trie_next(cur);
+		if (trie_next(node))
+			printf("\n");
+		for (i = 0; i < l; i++)
+			printf(" ");
+		node = trie_next(node);
 	}
 }
 
@@ -48,14 +55,14 @@ int main(int argc __attribute__((__unused__)),
 		return 1;
 	}
 
-	if (trie_add(root, "/this/is/very/deep////", NULL)) {
-		printf("Failed to add \"%s\" to trie.\n", "/this/is/very/deep");
+	if (trie_add(root, "/this/is/very/1////", NULL)) {
+		printf("Failed to add \"%s\" to trie.\n", "/this/is/very/1");
 		trie_free(root, NULL);
 		return 1;
 	}
 
-	if (trie_add(root, "/this/is////very/shallow", NULL)) {
-		printf("Failed to add \"%s\" to trie.\n", "/this/is/very/shallow");
+	if (trie_add(root, "/this/is////very/10", NULL)) {
+		printf("Failed to add \"%s\" to trie.\n", "/this/is/very/10");
 		trie_free(root, NULL);
 		return 1;
 	}
@@ -84,14 +91,14 @@ int main(int argc __attribute__((__unused__)),
 		return 1;
 	}
 
-	traverse(root);
+	traverse(root, 6);
 	printf("\n");
 	trie_foreach(root, my_traverse, NULL);
 	printf("\n\n");
 
 	/* Deletions */
-	if (trie_delete(root, "/this/is/very/shallow", NULL)) {
-		printf("Failed to delete \"%s\".\n", "/this/is/very/shallow");
+	if (trie_delete(root, "/this/is/very/10", NULL)) {
+		printf("Failed to delete \"%s\".\n", "/this/is/very/10");
 		trie_free(root, NULL);
 		return 1;
 	}
@@ -102,7 +109,7 @@ int main(int argc __attribute__((__unused__)),
 		return 1;
 	}
 
-	traverse(root);
+	traverse(root, 6);
 	printf("\n");
 	trie_foreach(root, my_traverse, NULL);
 	printf("\n\n");
@@ -113,7 +120,7 @@ int main(int argc __attribute__((__unused__)),
 		return 1;
 	}
 
-	traverse(root);
+	traverse(root, 6);
 	printf("\n");
 	trie_foreach(root, my_traverse, NULL);
 	printf("\n\n");
