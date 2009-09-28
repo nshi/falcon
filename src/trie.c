@@ -33,7 +33,7 @@ struct trie_node {
 	trie_node_t *prev;
 	trie_node_t *next;
 	char *delim;
-	size_t len;					/* Length of the delimiter */
+	size_t len;					/* Length of the delimiter or the key */
 	char *key;
 	void *data;
 };
@@ -50,8 +50,10 @@ static trie_node_t *new_node(const char *token, size_t len) {
 	}
 
 	node = calloc(1, sizeof(trie_node_t));
-	if (node)
+	if (node) {
 		node->key = key;
+		node->len = len;
+	}
 
 	return node;
 }
@@ -67,7 +69,7 @@ static trie_node_t *find_child(trie_node_t *node, const char *key, size_t len) {
 
 	cur = node;
 	while (cur) {
-		if (memcmp(cur->key, key, len) == 0)
+		if (memcmp(cur->key, key, cur->len > len ? cur->len : len) == 0)
 			break;
 		cur = cur->next;
 	}
