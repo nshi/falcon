@@ -132,7 +132,8 @@ static trie_node_t *find_and_create(trie_node_t *root, const char *key,
 static void foreach(trie_node_t *node, trie_func func, void *udata) {
 	for (; node; node = node->next) {
 		foreach(node->child, func, udata);
-		func(node, udata);
+		if (node->data)
+			func(node, udata);
 	}
 }
 

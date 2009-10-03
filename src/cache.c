@@ -34,24 +34,37 @@ static void falcon_cache_save_one(trie_node_t *node, void *userdata) {
 	g_key_file_set_integer_list(file, "falcon", object->name, values, 4);
 }
 
+static void falcon_cache_recursive_foreach_top(const trie_node_t *node,
+                                               GFunc func, gpointer udata) {
+	falcon_object_t *data = NULL;
+
+	while (node) {
+		if ((data = trie_data(node))) {
+			func(data, udata);
+		} else if (trie_child(node)) {
+			falcon_cache_recursive_foreach_top(trie_child(node), func, udata);
+		}
+		node = trie_next(node);
+	}
+}
+
 static void recursive_print(const trie_node_t *node, guint l) {
-	const trie_node_t *cur = node;
 	guint i = 0;
 	guint len = 0;
 
-	while (cur) {
-		printf("%s", trie_key(cur) ? trie_key(cur) : "ROOT");
-		if (trie_child(cur)) {
-			if (trie_key(cur))
-				len = strlen(trie_key(cur)) + 2;
+	while (node) {
+		printf("%s", trie_key(node) ? trie_key(node) : "ROOT");
+		if (trie_child(node)) {
+			if (trie_key(node))
+				len = strlen(trie_key(node)) + 2;
 			printf("->");
-			recursive_print(trie_child(cur), l + len);
+			recursive_print(trie_child(node), l + len);
 		}
-		if (trie_next(cur))
+		if (trie_next(node))
 			printf("\n");
 		for (i = 0; i < l; i++)
 			printf(" ");
-		cur = trie_next(cur);
+		node = trie_next(node);
 	}
 }
 
@@ -125,16 +138,14 @@ gboolean falcon_cache_delete(falcon_cache_t *cache, const gchar *name) {
 	return TRUE;
 }
 
-void falcon_cache_top_foreach(falcon_cache_t *cache, GFunc func,
+void falcon_cache_foreach_top(falcon_cache_t *cache, GFunc func,
                               gpointer userdata) {
-	trie_node_t *node = NULL;
-
 	g_return_if_fail(cache);
 	g_return_if_fail(func);
 
 	g_mutex_lock(cache->lock);
-	for (node = trie_child(cache->objects); node; node = trie_next(node))
-		func(trie_data(node), userdata);
+	falcon_cache_recursive_foreach_top(trie_child(cache->objects), func,
+	                                   userdata);
 	g_mutex_unlock(cache->lock);
 }
 
