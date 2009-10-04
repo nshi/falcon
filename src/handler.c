@@ -40,15 +40,17 @@ falcon_handler_created_event(falcon_object_t *object,
                              falcon_event_code_t event ATTRIBUTE_UNUSED,
                              falcon_cache_t *cache) {
 	if (!falcon_cache_add(cache, object))
-		g_warning(_("Failed to add %s to the cache."), object->name);
+		g_warning(_("Failed to add %s to the cache."),
+		          falcon_object_get_name(object));
 }
 
 static void
 falcon_handler_deleted_event(falcon_object_t *object,
                              falcon_event_code_t event ATTRIBUTE_UNUSED,
                              falcon_cache_t *cache) {
-	if (!falcon_cache_delete(cache, object->name))
-		g_warning(_("Failed to delete %s from the cache."), object->name);
+	if (!falcon_cache_delete(cache, falcon_object_get_name(object)))
+		g_warning(_("Failed to delete %s from the cache."),
+		          falcon_object_get_name(object));
 }
 
 static void
@@ -56,7 +58,8 @@ falcon_handler_changed_event(falcon_object_t *object,
                              falcon_event_code_t event ATTRIBUTE_UNUSED,
                              falcon_cache_t *cache) {
 	if (!falcon_cache_add(cache, object))
-		g_warning(_("Failed to change %s in the cache."), object->name);
+		g_warning(_("Failed to change %s in the cache."),
+		          falcon_object_get_name(object));
 }
 
 static inline gint falcon_handler_compare(gconstpointer a, gconstpointer b) {
@@ -176,7 +179,7 @@ void falcon_handler(falcon_object_t *object, falcon_event_code_t event,
 	GSList *cur = NULL;
 	GSList *prev = NULL;
 
-	g_message(_("Handling %s for event %s."), object->name,
+	g_message(_("Handling %s for event %s."), falcon_object_get_name(object),
 	          falcon_event_to_string(event));
 
 	g_mutex_lock(lock);

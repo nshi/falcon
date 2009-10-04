@@ -79,12 +79,13 @@ static gboolean falcon_walker_runeach(falcon_object_t *object,
 
 	g_return_val_if_fail(object, FALSE);
 
-	if (!(object->name))
+	if (!(falcon_object_get_name(object)))
 		g_warning(_("Object has no path associated with it, skipping..."));
 
-	cached = falcon_cache_get(cache, object->name);
+	cached = falcon_cache_get(cache, falcon_object_get_name(object));
 
-	if (cached && !g_file_test(object->name, G_FILE_TEST_EXISTS)) {
+	if (cached && !g_file_test(falcon_object_get_name(object),
+	                           G_FILE_TEST_EXISTS)) {
 		if (S_ISDIR(cached->mode))
 			falcon_handler(cached, EVENT_DIR_DELETED, cache);
 		else
@@ -94,9 +95,9 @@ static gboolean falcon_walker_runeach(falcon_object_t *object,
 	}
 
 
-	if (g_stat(object->name, &info) != 0) {
+	if (g_stat(falcon_object_get_name(object), &info) != 0) {
 		g_warning(_("Failed to obtain information for object %s, skipping..."),
-		          object->name);
+		          falcon_object_get_name(object));
 		return FALSE;
 	}
 
@@ -106,7 +107,7 @@ static gboolean falcon_walker_runeach(falcon_object_t *object,
 		falcon_object_set_time(object, info.st_ctime);
 	else
 		falcon_object_set_time(object, info.st_mtime);
-	if (g_file_test(object->name, G_FILE_TEST_IS_DIR)) {
+	if (g_file_test(falcon_object_get_name(object), G_FILE_TEST_IS_DIR)) {
 		/* Handle directory. */
 		if (!cached)
 			event = EVENT_DIR_CREATED;
@@ -116,7 +117,8 @@ static gboolean falcon_walker_runeach(falcon_object_t *object,
 		falcon_walker_walk_dir(object, cached);
 		if (object->watch)
 			falcon_watcher_add(object);
-	} else if (g_file_test(object->name, G_FILE_TEST_IS_REGULAR)) {
+	} else if (g_file_test(falcon_object_get_name(object),
+	                       G_FILE_TEST_IS_REGULAR)) {
 		/* Handle file. */
 		if (!cached)
 			event = EVENT_FILE_CREATED;

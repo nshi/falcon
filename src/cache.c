@@ -31,7 +31,8 @@ static void falcon_cache_save_one(trie_node_t *node, void *userdata) {
 	falcon_object_t *object = (falcon_object_t *)trie_data(node);
 	GKeyFile *file = (GKeyFile *)userdata;
 	gint values[] = {object->mode, object->size, object->time, object->watch};
-	g_key_file_set_integer_list(file, "falcon", object->name, values, 4);
+	g_key_file_set_integer_list(file, "falcon", falcon_object_get_name(object),
+	                            values, 4);
 }
 
 static void falcon_cache_recursive_foreach_top(const trie_node_t *node,

@@ -75,7 +75,8 @@ static void falcon_push(GQueue *queue, falcon_object_t *object) {
 
 	g_return_if_fail(queue);
 
-	l = g_queue_find_custom(queue, object->name, falcon_object_compare);
+	l = g_queue_find_custom(queue, falcon_object_get_name(object),
+	                        falcon_object_compare);
 	if (!l)
 		g_queue_push_tail(queue, object);
 }
@@ -149,7 +150,7 @@ static void falcon_set_watch_one(gpointer data, gpointer userdata) {
 
 	if (!ret)
 		g_warning(_("Failed to set watchability flag for \"%s\"."),
-		          object->name);
+		          falcon_object_get_name(object));
 }
 
 void falcon_init(const gchar *name) {
@@ -257,7 +258,7 @@ void falcon_task_add(falcon_object_t *object) {
 	}
 
 	g_return_if_fail(object);
-	g_debug(_("Adding task \"%s\"."), object->name);
+	g_debug(_("Adding task \"%s\"."), falcon_object_get_name(object));
 
 	g_mutex_lock(context.lock);
 	falcon_push(&context.pending_objects, object);

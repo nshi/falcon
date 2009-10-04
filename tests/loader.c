@@ -7,7 +7,7 @@
 static void print_cache(falcon_object_t *object,
                         gpointer data ATTRIBUTE_UNUSED) {
 	printf("%s: %s (%ld bytes, %ld secs, %s)\n",
-	       object->name,
+	       falcon_object_get_name(object),
 	       S_ISDIR(object->mode) ? "dir" : "file",
 	       object->size,
 	       object->time,

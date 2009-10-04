@@ -12,7 +12,7 @@ GMainLoop *ml = NULL;
 gboolean test_handler(falcon_object_t *object, falcon_event_code_t event,
                       gpointer userdata ATTRIBUTE_UNUSED) {
 	g_message("custom handler: %s->%s",
-	          object->name, falcon_event_to_string(event));
+	          falcon_object_get_name(object), falcon_event_to_string(event));
 	return TRUE;
 }
 

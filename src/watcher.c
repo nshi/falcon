@@ -105,24 +105,25 @@ gboolean falcon_watcher_add(const falcon_object_t *object) {
 	GFile *file = NULL;
 	GFileMonitor *monitor = NULL;
 	GError *error = NULL;
+	gboolean absolute = FALSE;
 
 	g_return_val_if_fail(object, FALSE);
 	g_return_val_if_fail(S_ISDIR(object->mode), FALSE);
 
 	if (!context.monitors || !context.lock || !context.cache) {
 		g_critical(_("Failed to add %s, watcher not initialized yet."),
-		           object->name);
+		           falcon_object_get_name(object));
 		return FALSE;
 	}
 
 	g_mutex_lock(context.lock);
-	if (g_hash_table_lookup(context.monitors, object->name)) {
+	if (g_hash_table_lookup(context.monitors, falcon_object_get_name(object))) {
 		g_mutex_unlock(context.lock);
 		return FALSE;
 	}
 	g_mutex_unlock(context.lock);
 
-	file = g_file_new_for_path(object->name);
+	file = g_file_new_for_path(falcon_object_get_name(object));
 	monitor = g_file_monitor(file, G_FILE_MONITOR_NONE, NULL, &error);
 	g_object_unref(file);
 	if (!monitor) {
@@ -132,14 +133,16 @@ gboolean falcon_watcher_add(const falcon_object_t *object) {
 		return FALSE;
 	}
 
+	absolute = g_path_is_absolute(falcon_object_get_name(object));
 	g_signal_connect(monitor, "changed", (gpointer) falcon_watcher_event,
-	                 GINT_TO_POINTER(g_path_is_absolute(object->name)));
+	                 GINT_TO_POINTER(absolute));
 
 	g_mutex_lock(context.lock);
-	g_hash_table_insert(context.monitors, g_strdup(object->name), monitor);
+	g_hash_table_insert(context.monitors,
+	                    g_strdup(falcon_object_get_name(object)), monitor);
 	g_mutex_unlock(context.lock);
 
-	g_debug(_("Started watching object %s."), object->name);
+	g_debug(_("Started watching object %s."), falcon_object_get_name(object));
 
 	return TRUE;
 }
@@ -151,15 +154,15 @@ gboolean falcon_watcher_delete(const falcon_object_t *object) {
 
 	if (!context.monitors || !context.lock || !context.cache) {
 		g_critical(_("Failed to delete %s, watcher not initialized yet."),
-		           object->name);
+		           falcon_object_get_name(object));
 		return FALSE;
 	}
 
 	g_mutex_lock(context.lock);
-	ret = g_hash_table_remove(context.monitors, object->name);
+	ret = g_hash_table_remove(context.monitors, falcon_object_get_name(object));
 	g_mutex_unlock(context.lock);
 
-	g_debug(_("Stopped watching object %s."), object->name);
+	g_debug(_("Stopped watching object %s."), falcon_object_get_name(object));
 
 	return ret;
 }
