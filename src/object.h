@@ -55,6 +55,7 @@ falcon_object_t *falcon_object_copy(const falcon_object_t *object);
  */
 inline gboolean falcon_object_equal(const falcon_object_t *a,
                                     const falcon_object_t *b);
+inline const gchar *falcon_object_get_name(const falcon_object_t *object);
 inline gboolean falcon_object_isdir(const falcon_object_t *object);
 inline void falcon_object_set_mode(falcon_object_t *object, mode_t mode);
 inline off_t falcon_object_get_size(const falcon_object_t *object);

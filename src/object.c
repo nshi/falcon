@@ -66,6 +66,12 @@ gboolean falcon_object_equal(const falcon_object_t *a,
 	        && g_strcmp0(a->name, b->name) == 0);
 }
 
+const gchar *falcon_object_get_name(const falcon_object_t *object) {
+	g_return_val_if_fail(object, NULL);
+
+	return object->name;
+}
+
 gboolean falcon_object_isdir(const falcon_object_t *object) {
 	g_return_val_if_fail(object, FALSE);
 
