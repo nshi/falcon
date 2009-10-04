@@ -132,6 +132,26 @@ static void falcon_start_all(void) {
 	falcon_cache_foreach_top(context.cache, falcon_start_one, NULL);
 }
 
+static void falcon_set_watch_one(gpointer data, gpointer userdata) {
+	falcon_object_t *object = (falcon_object_t *)data;
+	gboolean watch = GPOINTER_TO_INT(userdata);
+	gboolean ret = FALSE;
+
+	falcon_object_set_watch(object, watch);
+
+	if (!falcon_object_isdir(object))
+		return;
+
+	if (watch)
+		ret = falcon_watcher_add(object);
+	else
+		ret = falcon_watcher_delete(object);
+
+	if (!ret)
+		g_warning(_("Failed to set watchability flag for \"%s\"."),
+		          object->name);
+}
+
 void falcon_init(const gchar *name) {
 	g_log_set_handler(G_LOG_DOMAIN, G_LOG_LEVEL_MASK, falcon_log_handler, NULL);
 
@@ -201,9 +221,7 @@ void falcon_add(const gchar *name, gboolean watch) {
 }
 
 gboolean falcon_set_watch(const gchar *name, gboolean watch) {
-	falcon_object_t *object = NULL;
 	gchar *path = NULL;
-	gboolean ret = FALSE;
 
 	if (!context.lock || !context.cache || !context.walkers
 	    || !context.running_cond) {
@@ -223,25 +241,12 @@ gboolean falcon_set_watch(const gchar *name, gboolean watch) {
 	        watch ? _("true") : _("false"));
 
 	g_mutex_lock(context.lock);
-	object = falcon_cache_get(context.cache, path);
+	falcon_cache_foreach_children(context.cache, path, falcon_set_watch_one,
+	                              GINT_TO_POINTER(watch));
 	g_mutex_unlock(context.lock);
 	g_free(path);
-	if (!object) {
-		g_warning(_("Failed to set watchability flag,"
-		            " object %s does not exist."), name);
-		return FALSE;
-	}
 
-	falcon_object_set_watch(object, watch);
-	if (watch)
-		ret = falcon_watcher_add(object);
-	else
-		ret = falcon_watcher_delete(object);
-
-	if (!ret)
-		g_warning(_("Failed to set watchability flag for \"%s\"."), name);
-
-	return ret;
+	return TRUE;
 }
 
 void falcon_task_add(falcon_object_t *object) {

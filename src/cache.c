@@ -48,6 +48,20 @@ static void falcon_cache_recursive_foreach_top(const trie_node_t *node,
 	}
 }
 
+static void falcon_cache_recursive_foreach_children(const trie_node_t *node,
+                                                    GFunc func, gpointer udata) {
+	falcon_object_t *data = NULL;
+
+	while (node) {
+		if (trie_child(node))
+			falcon_cache_recursive_foreach_children(trie_child(node), func,
+			                                        udata);
+		if ((data = trie_data(node)))
+			func(data, udata);
+		node = trie_next(node);
+	}
+}
+
 static void recursive_print(const trie_node_t *node, guint l) {
 	guint i = 0;
 	guint len = 0;
@@ -146,6 +160,22 @@ void falcon_cache_foreach_top(falcon_cache_t *cache, GFunc func,
 	g_mutex_lock(cache->lock);
 	falcon_cache_recursive_foreach_top(trie_child(cache->objects), func,
 	                                   userdata);
+	g_mutex_unlock(cache->lock);
+}
+
+void falcon_cache_foreach_children(falcon_cache_t *cache, const gchar *name,
+                                   GFunc func, gpointer userdata) {
+	trie_node_t *node = NULL;
+	falcon_object_t *data = NULL;
+
+	g_return_if_fail(cache);
+	g_return_if_fail(func);
+
+	g_mutex_lock(cache->lock);
+	node = trie_find(cache->objects, name);
+	falcon_cache_recursive_foreach_children(trie_child(node), func, userdata);
+	if ((data = trie_data(node)))
+		func(data, userdata);
 	g_mutex_unlock(cache->lock);
 }
 
