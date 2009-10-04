@@ -134,7 +134,8 @@ static gboolean falcon_walker_runeach(falcon_object_t *object,
 	return TRUE;
 }
 
-void falcon_walker_run(gpointer data, gpointer userdata) {
+void falcon_walker_run(gpointer data, gpointer userdata)
+{
 	GQueue *objects = (GQueue *)data;
 	falcon_object_t *object = NULL;
 	falcon_cache_t *cache = (falcon_cache_t *)userdata;

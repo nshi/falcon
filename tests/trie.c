@@ -3,7 +3,8 @@
 
 #include "trie.h"
 
-void traverse(const trie_node_t *node, unsigned int l) {
+void traverse(const trie_node_t *node, unsigned int l)
+{
 	unsigned int i = 0;
 	unsigned int len = 0;
 
@@ -23,7 +24,8 @@ void traverse(const trie_node_t *node, unsigned int l) {
 	}
 }
 
-void my_traverse(trie_node_t *node, void *data __attribute__((__unused__))) {
+void my_traverse(trie_node_t *node, void *data __attribute__((__unused__)))
+{
 	printf("%s", trie_key(node) ? trie_key(node) : "ROOT");
 	printf(" -> ");
 }

@@ -62,7 +62,8 @@ falcon_handler_changed_event(falcon_object_t *object,
 		          falcon_object_get_name(object));
 }
 
-static inline gint falcon_handler_compare(gconstpointer a, gconstpointer b) {
+static inline gint falcon_handler_compare(gconstpointer a, gconstpointer b)
+{
 	const falcon_handler_t *handler = (const falcon_handler_t *)a;
 	const falcon_handler_func func = (const falcon_handler_func)b;
 
@@ -136,7 +137,8 @@ gboolean falcon_handler_unregister(falcon_event_code_t events,
 	return TRUE;
 }
 
-void falcon_handler_registry_init(void) {
+void falcon_handler_registry_init(void)
+{
 	g_return_if_fail(!lock);
 	g_return_if_fail(!registry);
 
@@ -150,7 +152,8 @@ void falcon_handler_registry_init(void) {
 	g_hash_table_insert(registry, GUINT_TO_POINTER(EVENT_FILE_CHANGED), NULL);
 }
 
-void falcon_handler_registry_shutdown(void) {
+void falcon_handler_registry_shutdown(void)
+{
 	GHashTableIter iter;
 	gpointer key, value;
 	GSList *list = NULL;

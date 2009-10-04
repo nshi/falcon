@@ -27,7 +27,8 @@
 
 #include "object.h"
 
-falcon_object_t *falcon_object_new(const gchar *name) {
+falcon_object_t *falcon_object_new(const gchar *name)
+{
 	g_return_val_if_fail(name, NULL);
 
 	falcon_object_t *object = g_new0(falcon_object_t, 1);
@@ -35,13 +36,15 @@ falcon_object_t *falcon_object_new(const gchar *name) {
 	return object;
 }
 
-void falcon_object_free(falcon_object_t *object) {
+void falcon_object_free(falcon_object_t *object)
+{
 	g_return_if_fail(object);
 	g_free(object->name);
 	g_free(object);
 }
 
-falcon_object_t *falcon_object_copy(const falcon_object_t *object) {
+falcon_object_t *falcon_object_copy(const falcon_object_t *object)
+{
 	falcon_object_t *ret = NULL;
 
 	g_return_val_if_fail(object, NULL);
@@ -66,55 +69,64 @@ gboolean falcon_object_equal(const falcon_object_t *a,
 	        && g_strcmp0(a->name, b->name) == 0);
 }
 
-const gchar *falcon_object_get_name(const falcon_object_t *object) {
+const gchar *falcon_object_get_name(const falcon_object_t *object)
+{
 	g_return_val_if_fail(object, NULL);
 
 	return object->name;
 }
 
-gboolean falcon_object_isdir(const falcon_object_t *object) {
+gboolean falcon_object_isdir(const falcon_object_t *object)
+{
 	g_return_val_if_fail(object, FALSE);
 
 	return S_ISDIR(object->mode);
 }
 
-void falcon_object_set_mode(falcon_object_t *object, mode_t mode) {
+void falcon_object_set_mode(falcon_object_t *object, mode_t mode)
+{
 	g_return_if_fail(object);
 
 	object->mode = mode;
 }
 
-off_t falcon_object_get_size(const falcon_object_t *object) {
+off_t falcon_object_get_size(const falcon_object_t *object)
+{
 	g_return_val_if_fail(object, 0);
 
 	return object->size;
 }
 
-void falcon_object_set_size(falcon_object_t *object, off_t size) {
+void falcon_object_set_size(falcon_object_t *object, off_t size)
+{
 	g_return_if_fail(object);
 
 	object->size = size;
 }
 
-time_t falcon_object_get_time(const falcon_object_t *object) {
+time_t falcon_object_get_time(const falcon_object_t *object)
+{
 	g_return_val_if_fail(object, 0);
 
 	return object->time;
 }
 
-void falcon_object_set_time(falcon_object_t *object, time_t time) {
+void falcon_object_set_time(falcon_object_t *object, time_t time)
+{
 	g_return_if_fail(object);
 
 	object->time = time;
 }
 
-gboolean falcon_object_get_watch(const falcon_object_t *object) {
+gboolean falcon_object_get_watch(const falcon_object_t *object)
+{
 	g_return_val_if_fail(object, FALSE);
 
 	return object->watch;
 }
 
-void falcon_object_set_watch(falcon_object_t *object, gboolean watch) {
+void falcon_object_set_watch(falcon_object_t *object, gboolean watch)
+{
 	g_return_if_fail(object);
 
 	object->watch = watch;

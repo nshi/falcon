@@ -42,7 +42,8 @@ typedef struct {
 
 static falcon_watcher_context_t context;
 
-static void falcon_watcher_cancel(gpointer data) {
+static void falcon_watcher_cancel(gpointer data)
+{
 	GFileMonitor *monitor = (GFileMonitor *)data;
 
 	g_file_monitor_cancel(monitor);
@@ -76,7 +77,8 @@ static void falcon_watcher_event(GFileMonitor *monitor ATTRIBUTE_UNUSED,
 	falcon_task_add(object);
 }
 
-void falcon_watcher_init(falcon_cache_t *cache) {
+void falcon_watcher_init(falcon_cache_t *cache)
+{
 	g_return_if_fail(!context.lock);
 	g_return_if_fail(!context.monitors);
 	g_return_if_fail(!context.cache);
@@ -91,7 +93,8 @@ void falcon_watcher_init(falcon_cache_t *cache) {
 	context.cwd = g_get_current_dir();
 }
 
-void falcon_watcher_shutdown(void) {
+void falcon_watcher_shutdown(void)
+{
 	g_return_if_fail(context.lock);
 	g_return_if_fail(context.monitors);
 	g_return_if_fail(context.cwd);
@@ -101,7 +104,8 @@ void falcon_watcher_shutdown(void) {
 	g_free(context.cwd);
 }
 
-gboolean falcon_watcher_add(const falcon_object_t *object) {
+gboolean falcon_watcher_add(const falcon_object_t *object)
+{
 	GFile *file = NULL;
 	GFileMonitor *monitor = NULL;
 	GError *error = NULL;
@@ -147,7 +151,8 @@ gboolean falcon_watcher_add(const falcon_object_t *object) {
 	return TRUE;
 }
 
-gboolean falcon_watcher_delete(const falcon_object_t *object) {
+gboolean falcon_watcher_delete(const falcon_object_t *object)
+{
 	gboolean ret = FALSE;
 
 	g_return_val_if_fail(object, FALSE);

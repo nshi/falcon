@@ -14,7 +14,8 @@ static void print_cache(falcon_object_t *object,
 	       object->watch ? "yes" : "no");
 }
 
-int main(int argc ATTRIBUTE_UNUSED, char **argv) {
+int main(int argc ATTRIBUTE_UNUSED, char **argv)
+{
 	g_thread_init(NULL);
 
 	falcon_cache_t *cache = falcon_cache_new();

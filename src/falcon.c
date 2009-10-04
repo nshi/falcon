@@ -40,7 +40,8 @@ typedef struct {
 
 static falcon_context_t context;
 
-static void falcon_context_init(void) {
+static void falcon_context_init(void)
+{
 	context.lock = g_mutex_new();
 	g_queue_init(&context.pending_objects);
 	g_queue_init(&context.failed_objects);
@@ -54,7 +55,8 @@ static void falcon_context_init(void) {
 	context.running = 0;
 }
 
-static void falcon_context_free(gboolean wait) {
+static void falcon_context_free(gboolean wait)
+{
 	falcon_object_t *object = NULL;
 
 	while ((object = g_queue_pop_head(&context.pending_objects))) {
@@ -70,7 +72,8 @@ static void falcon_context_free(gboolean wait) {
 }
 
 /* The caller must lock the context. */
-static void falcon_push(GQueue *queue, falcon_object_t *object) {
+static void falcon_push(GQueue *queue, falcon_object_t *object)
+{
 	GList *l = NULL;
 
 	g_return_if_fail(queue);
@@ -82,7 +85,8 @@ static void falcon_push(GQueue *queue, falcon_object_t *object) {
 }
 
 /* The caller must lock the context. */
-static void falcon_dispatch(gboolean force) {
+static void falcon_dispatch(gboolean force)
+{
 	GQueue *objects = NULL;
 	guint length = g_queue_get_length(&context.pending_objects);
 
@@ -110,7 +114,8 @@ static void falcon_dispatch(gboolean force) {
 	}
 }
 
-static gchar *falcon_normalize_path(const gchar *name) {
+static gchar *falcon_normalize_path(const gchar *name)
+{
 	gchar *path = NULL;
 
 	g_return_val_if_fail(name, NULL);
@@ -123,17 +128,20 @@ static gchar *falcon_normalize_path(const gchar *name) {
 	return path;
 }
 
-static void falcon_start_one(gpointer data, gpointer userdata ATTRIBUTE_UNUSED) {
+static void falcon_start_one(gpointer data, gpointer userdata ATTRIBUTE_UNUSED)
+{
 	const falcon_object_t *object = (const falcon_object_t *)data;
 	falcon_object_t *tmp = falcon_object_copy(object);
 	falcon_task_add(tmp);
 }
 
-static void falcon_start_all(void) {
+static void falcon_start_all(void)
+{
 	falcon_cache_foreach_top(context.cache, falcon_start_one, NULL);
 }
 
-static void falcon_set_watch_one(gpointer data, gpointer userdata) {
+static void falcon_set_watch_one(gpointer data, gpointer userdata)
+{
 	falcon_object_t *object = (falcon_object_t *)data;
 	gboolean watch = GPOINTER_TO_INT(userdata);
 	gboolean ret = FALSE;
@@ -153,7 +161,8 @@ static void falcon_set_watch_one(gpointer data, gpointer userdata) {
 		          falcon_object_get_name(object));
 }
 
-void falcon_init(const gchar *name) {
+void falcon_init(const gchar *name)
+{
 	g_log_set_handler(G_LOG_DOMAIN, G_LOG_LEVEL_MASK, falcon_log_handler, NULL);
 
 	falcon_context_init();
@@ -164,7 +173,8 @@ void falcon_init(const gchar *name) {
 	falcon_start_all();
 }
 
-void falcon_shutdown(const gchar *name, gboolean wait) {
+void falcon_shutdown(const gchar *name, gboolean wait)
+{
 	if (!context.lock || !context.cache || !context.walkers
 	    || !context.running_cond) {
 		g_critical(_("Please initialize the system first."));
@@ -190,7 +200,8 @@ void falcon_shutdown(const gchar *name, gboolean wait) {
 	falcon_context_free(wait);
 }
 
-void falcon_add(const gchar *name, gboolean watch) {
+void falcon_add(const gchar *name, gboolean watch)
+{
 	falcon_object_t *object = NULL;
 	gchar *path = NULL;
 
@@ -221,7 +232,8 @@ void falcon_add(const gchar *name, gboolean watch) {
 	g_free(path);
 }
 
-gboolean falcon_set_watch(const gchar *name, gboolean watch) {
+gboolean falcon_set_watch(const gchar *name, gboolean watch)
+{
 	gchar *path = NULL;
 
 	if (!context.lock || !context.cache || !context.walkers
@@ -250,7 +262,8 @@ gboolean falcon_set_watch(const gchar *name, gboolean watch) {
 	return TRUE;
 }
 
-void falcon_task_add(falcon_object_t *object) {
+void falcon_task_add(falcon_object_t *object)
+{
 	if (!context.lock || !context.cache || !context.walkers
 	    || !context.running_cond) {
 		g_critical(_("Please initialize the system first."));
@@ -266,7 +279,8 @@ void falcon_task_add(falcon_object_t *object) {
 	g_mutex_unlock(context.lock);
 }
 
-void falcon_failed_add(falcon_object_t *object) {
+void falcon_failed_add(falcon_object_t *object)
+{
 	if (!context.lock || !context.cache || !context.walkers
 	    || !context.running_cond) {
 		g_critical(_("Please initialize the system first."));
@@ -279,7 +293,8 @@ void falcon_failed_add(falcon_object_t *object) {
 	g_mutex_unlock(context.lock);
 }
 
-void falcon_walker_return(GError *error) {
+void falcon_walker_return(GError *error)
+{
 	if (!context.lock || !context.cache || !context.walkers
 	    || !context.running_cond) {
 		g_critical(_("Please initialize the system first."));

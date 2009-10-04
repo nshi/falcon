@@ -37,7 +37,8 @@ void falcon_log_handler (const gchar *log_domain, GLogLevelFlags log_level,
 	g_log_default_handler(log_domain, log_level, message, user_data);
 }
 
-void falcon_set_log_level(GLogLevelFlags log_level) {
+void falcon_set_log_level(GLogLevelFlags log_level)
+{
 	falcon_log_level  = DEFAULT_LOG_LEVEL;
 
 	if (log_level >= G_LOG_LEVEL_WARNING)
@@ -50,11 +51,13 @@ void falcon_set_log_level(GLogLevelFlags log_level) {
 		falcon_log_level |= G_LOG_LEVEL_DEBUG;
 }
 
-gint falcon_object_compare(gconstpointer a, gconstpointer b) {
+gint falcon_object_compare(gconstpointer a, gconstpointer b)
+{
 	return g_strcmp0(((const falcon_object_t *)a)->name, (const gchar *)b);
 }
 
-void falcon_error_report(GError *error) {
+void falcon_error_report(GError *error)
+{
 	if (error) {
 		switch (error->code) {
 		case FALCON_ERROR_ERROR:

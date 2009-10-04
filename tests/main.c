@@ -16,11 +16,13 @@ gboolean test_handler(falcon_object_t *object, falcon_event_code_t event,
 	return TRUE;
 }
 
-void ex(int sig ATTRIBUTE_UNUSED) {
+void ex(int sig ATTRIBUTE_UNUSED)
+{
 	g_main_loop_quit(ml);
 }
 
-int main(int argc ATTRIBUTE_UNUSED, char **argv) {
+int main(int argc ATTRIBUTE_UNUSED, char **argv)
+{
 	g_thread_init(NULL);
 	falcon_init("cache.ini");
 

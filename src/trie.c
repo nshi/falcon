@@ -38,7 +38,8 @@ struct trie_node {
 	void *data;
 };
 
-static trie_node_t *new_node(const char *token, size_t len) {
+static trie_node_t *new_node(const char *token, size_t len)
+{
 	trie_node_t *node = NULL;
 	char *key = NULL;
 
@@ -61,7 +62,8 @@ static trie_node_t *new_node(const char *token, size_t len) {
 /*
  * Find the sibling that contains the given key.
  */
-static trie_node_t *find_child(trie_node_t *node, const char *key, size_t len) {
+static trie_node_t *find_child(trie_node_t *node, const char *key, size_t len)
+{
 	trie_node_t *cur = NULL;
 
 	if (!node || !key || len <= 0)
@@ -129,7 +131,8 @@ static trie_node_t *find_and_create(trie_node_t *root, const char *key,
 	return cur;
 }
 
-static void foreach(trie_node_t *node, trie_func func, void *udata) {
+static void foreach(trie_node_t *node, trie_func func, void *udata)
+{
 	for (; node; node = node->next) {
 		foreach(node->child, func, udata);
 		if (node->data)
@@ -137,7 +140,8 @@ static void foreach(trie_node_t *node, trie_func func, void *udata) {
 	}
 }
 
-trie_node_t *trie_new(const char *delim, size_t len) {
+trie_node_t *trie_new(const char *delim, size_t len)
+{
 	trie_node_t *root = NULL;
 
 	if (!delim || len <= 0)
@@ -157,7 +161,8 @@ trie_node_t *trie_new(const char *delim, size_t len) {
 	return root;
 }
 
-void trie_free(trie_node_t *root, trie_free_func func) {
+void trie_free(trie_node_t *root, trie_free_func func)
+{
 	trie_node_t *cur = NULL;
 	trie_node_t *next = NULL;
 
@@ -178,7 +183,8 @@ void trie_free(trie_node_t *root, trie_free_func func) {
 	free(root);
 }
 
-int trie_add(trie_node_t *root, const char *key, void *data) {
+int trie_add(trie_node_t *root, const char *key, void *data)
+{
 	trie_node_t *node = find_and_create(root, key, 1);
 	if (!node)
 		return -1;
@@ -188,7 +194,8 @@ int trie_add(trie_node_t *root, const char *key, void *data) {
 	return 0;
 }
 
-int trie_delete(trie_node_t *root, const char *key, trie_free_func func) {
+int trie_delete(trie_node_t *root, const char *key, trie_free_func func)
+{
 	trie_node_t *node = find_and_create(root, key, 0);
 	if (!node)
 		return -1;
@@ -204,60 +211,69 @@ int trie_delete(trie_node_t *root, const char *key, trie_free_func func) {
 	return 0;
 }
 
-trie_node_t *trie_find(trie_node_t *root, const char *key) {
+trie_node_t *trie_find(trie_node_t *root, const char *key)
+{
 	return find_and_create(root, key, 0);
 }
 
-void trie_foreach(trie_node_t *root, trie_func func, void *udata) {
+void trie_foreach(trie_node_t *root, trie_func func, void *udata)
+{
 	if (!root || !func)
 		return;
 
 	foreach(root->child, func, udata);
 }
 
-const char *trie_key(const trie_node_t *node) {
+const char *trie_key(const trie_node_t *node)
+{
 	if (!node)
 		return NULL;
 
 	return node->key;
 }
 
-void *trie_data(const trie_node_t *node) {
+void *trie_data(const trie_node_t *node)
+{
 	if (!node)
 		return NULL;
 
 	return node->data;
 }
 
-void trie_set_data(trie_node_t *node, void *data) {
+void trie_set_data(trie_node_t *node, void *data)
+{
 	if (!node)
 		return;
 
 	node->data = data;
 }
 
-trie_node_t *trie_parent(const trie_node_t *node) {
+trie_node_t *trie_parent(const trie_node_t *node)
+{
 	if (!node)
 		return NULL;
 
 	return node->parent;
 }
 
-trie_node_t *trie_child(const trie_node_t *node) {
+trie_node_t *trie_child(const trie_node_t *node)
+{
 	if (!node)
 		return NULL;
 
 	return node->child;
 }
 
-trie_node_t *trie_prev(const trie_node_t *node) {
+trie_node_t *trie_prev(const trie_node_t *node)
+{
 	if (!node)
 		return NULL;
 
 	return node->prev;
 }
 
-trie_node_t *trie_next(const trie_node_t *node) {
+trie_node_t *trie_next(const trie_node_t *node)
+{
 	if (!node)
 		return NULL;
 

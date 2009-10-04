@@ -26,7 +26,8 @@
 
 #include "events.h"
 
-const gchar *falcon_event_to_string(falcon_event_code_t event) {
+const gchar *falcon_event_to_string(falcon_event_code_t event)
+{
 	switch (event) {
 	case EVENT_DIR_CREATED:
 		return "EVENT_DIR_CREATED";
