@@ -10,12 +10,16 @@
 ** TODO [#C] Seperate private and public APIs.					:Enhancement:
 ** DONE [#A] Make components thread-safe.								:Bug:
    CLOSED: [2009-09-15 Tue 21:34]
-** TODO [#C] Clean up the code according to a coding standard.	:Enhancement:
+** DONE [#C] Clean up the code according to a coding standard.	:Enhancement:
+   CLOSED: [2009-10-03 Sat 23:52]
 ** DONE [#A] Stop casting function pointers!							:Bug:
    CLOSED: [2009-09-19 Sat 15:28]
 ** DONE [#A] It's probably scanning the same file multiple times! :Enhancement:
    CLOSED: [2009-09-28 Mon 17:34]
    Wait until trie is implemented.
+** TODO [#C] Reduce memory footprints.							:Enhancement:
+** DONE [#A] Convert filenames to/from UTF-8 after/before disk operation. :Bug:
+   CLOSED: [2009-10-06 Tue 18:18]
 * Handler
 ** DONE [#B] Handle changed event.									:Feature:
    CLOSED: [2009-09-14 Mon 20:12]
@@ -38,6 +42,8 @@
    CLOSED: [2009-09-28 Mon 17:34]
    This will greatly reduce the time spent on scanning. Currently the speed
    sucks.
+** DONE [#A] Create our own binary file format.							:Bug:
+   CLOSED: [2009-10-06 Tue 18:18]
 * Falcon
 ** DONE [#B] Implement the main function.							:Feature:
    CLOSED: [2009-09-13 Sun 14:40]
@@ -52,7 +58,8 @@
 ** TODO [#C] Dynamically control the size of the thread pool.	:Enhancement:
 ** DONE [#B] Check if the system is initialized first in every function. :Enhancement:
    CLOSED: [2009-09-19 Sat 15:44]
-** ACTIVE [#A] Fix changing watchability flag.							:Bug:
+** DONE [#A] Fix changing watchability flag.							:Bug:
+   CLOSED: [2009-10-03 Sat 22:39]
    Need to recursively change all its descendants.
 * Watcher
 ** DONE [#B] Implement watcher.										:Feature:
@@ -76,9 +83,12 @@
 ** DONE [#B] Allow users to register a handler for all events.		:Feature:
    CLOSED: [2009-09-15 Tue 20:25]
 * Object
-** TODO [#C] We do need the accessors, we also need it for the name. :Enhancement:
+** DONE [#C] We do need the accessors, we also need it for the name. :Enhancement:
+   CLOSED: [2009-10-03 Sat 23:37]
 * Trie
 ** DONE [#A] Implement trie_foreach with depth-first traversal.		:Feature:
    CLOSED: [2009-09-28 Mon 17:34]
+* Filter
+** TODO [#A] Implement filter.										:Feature:
 * Testing
 ** TODO [#C] Write unit tests.									:Enhancement:
