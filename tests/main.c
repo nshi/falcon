@@ -30,9 +30,6 @@ int main(int argc ATTRIBUTE_UNUSED, char **argv)
 	falcon_handler_register(EVENT_ALL, test_handler, NULL);
 
 	falcon_add(argv[1], TRUE);
-	g_usleep(1000000);
-	if (!falcon_set_watch("tests/c", FALSE))
-		g_critical("Failed setting watchability flag of \"tests/c\"");
 
 	signal(SIGINT, ex);
 	ml = g_main_loop_new (NULL, FALSE);
