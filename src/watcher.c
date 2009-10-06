@@ -59,8 +59,6 @@ static void falcon_watcher_event(GFileMonitor *monitor ATTRIBUTE_UNUSED,
 	GFile *relative_base = NULL;
 	gchar *path = NULL;
 	falcon_object_t *object = NULL;
-	struct stat info;
-	memset(&info, 0, sizeof(struct stat));
 
 	if (absolute) {
 		path = g_file_get_path(entity);
