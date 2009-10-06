@@ -32,6 +32,7 @@
 
 typedef struct {
 	GMutex *lock;
+	guint64 count;
 	trie_node_t *objects;
 } falcon_cache_t;
 

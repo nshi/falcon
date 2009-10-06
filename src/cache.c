@@ -22,19 +22,12 @@
  * THE SOFTWARE.
  */
 
+#include <fcntl.h>
+#include <unistd.h>
+#include <errno.h>
 #include <glib/gstdio.h>
-#include <stdio.h>
 
 #include "cache.h"
-
-static void falcon_cache_save_one(trie_node_t *node, void *userdata)
-{
-	falcon_object_t *object = (falcon_object_t *)trie_data(node);
-	GKeyFile *file = (GKeyFile *)userdata;
-	gint values[] = {object->mode, object->size, object->time, object->watch};
-	g_key_file_set_integer_list(file, "falcon", falcon_object_get_name(object),
-	                            values, 4);
-}
 
 static void falcon_cache_recursive_foreach_top(const trie_node_t *node,
                                                GFunc func, gpointer udata) {
@@ -132,6 +125,7 @@ gboolean falcon_cache_add(falcon_cache_t *cache, falcon_object_t *object)
 		trie_set_data(old_node, dup);
 	} else {
 		trie_add(cache->objects, dup->name, dup);
+		cache->count++;
 	}
 
 	g_mutex_unlock(cache->lock);
@@ -155,6 +149,7 @@ gboolean falcon_cache_delete(falcon_cache_t *cache, const gchar *name)
 	}
 
 	trie_delete(cache->objects, name, (trie_free_func)falcon_object_free);
+	cache->count--;
 	g_mutex_unlock(cache->lock);
 
 	return TRUE;
@@ -187,92 +182,97 @@ void falcon_cache_foreach_children(falcon_cache_t *cache, const gchar *name,
 	g_mutex_unlock(cache->lock);
 }
 
+/*
+ * Cache file format
+ *
+ * All values are stored in Big Endian order.
+ * 8 bytes unsigned integer: number of objects following.
+ * For each object,
+ * 2 bytes unsigned integer: name length, follow by name string.
+ * 8 bytes signed integer: file size
+ * 8 bytes signed integer: time
+ * 4 bytes unsigned integer: mode
+ * 1 byte unsigned integer: watchability flag.
+ */
 gboolean falcon_cache_load(falcon_cache_t *cache, const gchar *name)
 {
-	GKeyFile *file = NULL;
-	gchar **keys = NULL;
-	gsize size = 0;
-	gint *values = NULL;
-	gsize vsize = 0;
-	GError *error = NULL;
+	int fd = 0;
+	guint64 count = 0;
 	falcon_object_t *object = NULL;
-	gsize i;
+	guint64 i;
+	gboolean ret = TRUE;
 
 	g_return_val_if_fail(cache, FALSE);
 	if (!name)
 		return FALSE;
 
-	file = g_key_file_new();
-	if (!g_key_file_load_from_file(file, name, G_KEY_FILE_NONE, &error)) {
-		error->code = FALCON_ERROR_CRITICAL;
-		falcon_error_report(error);
-		g_error_free(error);
-		g_key_file_free(file);
+	fd = g_open(name, O_RDONLY, 0);
+	if (fd == -1) {
+		g_critical(_("Failed to read cache file %s: %s"), name,
+		           g_strerror(errno));
 		return FALSE;
 	}
 
-	if (!(keys = g_key_file_get_keys(file, "falcon", &size, &error))) {
-		error->code = FALCON_ERROR_CRITICAL;
-		falcon_error_report(error);
-		g_error_free(error);
-		g_key_file_free(file);
+	if (read(fd, &(count), 8) == -1) {
+		g_critical(_("Failed to read cache file %s: %s"), name,
+		           g_strerror(errno));
+		close(fd);
 		return FALSE;
 	}
-	g_debug(_("Loaded %ld cache keys."), size);
+	count = GUINT64_FROM_BE(count);
 
-	for (i = 0; i < size; i++) {
-		if (!(values = g_key_file_get_integer_list(file, "falcon",
-		                                           keys[i], &vsize, &error))) {
-			error->code = FALCON_ERROR_CRITICAL;
-			falcon_error_report(error);
-			g_error_free(error);
-			g_key_file_free(file);
-			return FALSE;
+	g_debug(_("Loaded %lu cache keys."), count);
+
+	for (i = 1; i <= count; i++) {
+		object = falcon_object_new(NULL);
+		if (!falcon_object_load(object, GINT_TO_POINTER(fd))) {
+			g_critical(_("Failed to load object %lu"), i);
+			falcon_object_free(object);
+			ret = FALSE;
+			break;
 		}
-		g_debug(_("Loading key %ld: %d, %d, %d, %d"),
-		        i, values[0], values[1], values[2], values[3]);
 
-		object = falcon_object_new(keys[i]);
-		falcon_object_set_mode(object, values[0]);
-		falcon_object_set_size(object, values[1]);
-		falcon_object_set_time(object, values[2]);
-		falcon_object_set_watch(object, values[3]);
+		g_debug(_("Loaded object \"%s\": dir=%s, size=%ld, time=%ld, watch=%s"),
+		        falcon_object_get_name(object),
+		        falcon_object_isdir(object) ? "yes" : "no",
+		        falcon_object_get_size(object),
+		        falcon_object_get_time(object),
+		        falcon_object_get_watch(object) ? "yes" : "no");
 
 		falcon_cache_add(cache, object);
 
-		g_free(values);
 		falcon_object_free(object);
+		object = NULL;
 	}
 
-	g_strfreev(keys);
-	g_key_file_free(file);
+	close(fd);
 
-	return TRUE;
+	return ret;
 }
 
 gboolean falcon_cache_save(const falcon_cache_t *cache, const gchar *name)
 {
-	GKeyFile *file = NULL;
-	gsize size = 0;
-	FILE *output = NULL;
-	gchar *data = NULL;
+	int fd = 0;
+	guint64 count = 0;
 
 	g_return_val_if_fail(cache, FALSE);
 	if (!name)
 		return FALSE;
 
-	file = g_key_file_new();
+	fd = g_open(name, O_WRONLY | O_TRUNC | O_CREAT,
+	            S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+	if (fd == -1) {
+		g_critical(_("Failed to open cache file %s: %s"), name,
+		           g_strerror(errno));
+		return FALSE;
+	}
+
 	g_mutex_lock(cache->lock);
-	trie_foreach(cache->objects, falcon_cache_save_one, file);
+	count = GUINT64_TO_BE(cache->count);
+	write(fd, &count, 8);
+	trie_foreach(cache->objects, falcon_object_save, GINT_TO_POINTER(fd));
 	g_mutex_unlock(cache->lock);
-
-	data = g_key_file_to_data(file, &size, NULL);
-	output = g_fopen(name, "w");
-	fprintf(output, data);
-	fclose(output);
-
-	g_free(data);
-	g_key_file_free(file);
+	close(fd);
 
 	return TRUE;
 }
