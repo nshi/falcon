@@ -22,6 +22,7 @@
  * THE SOFTWARE.
  */
 
+#include <locale.h>
 #include <glib.h>
 
 #include "falcon.h"
@@ -163,6 +164,8 @@ static void falcon_set_watch_one(gpointer data, gpointer userdata)
 
 void falcon_init(const gchar *name)
 {
+	setlocale(LC_ALL, "");
+
 	g_log_set_handler(G_LOG_DOMAIN, G_LOG_LEVEL_MASK, falcon_log_handler, NULL);
 
 	falcon_context_init();

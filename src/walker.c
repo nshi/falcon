@@ -38,6 +38,7 @@ static void falcon_walker_walk_dir(const falcon_object_t *parent,
 	GDir *dir = NULL;
 	GError *error = NULL;
 	const gchar *entry = NULL;
+	gchar *name = NULL;
 	gchar *path = NULL;
 	falcon_object_t *object = NULL;
 
@@ -47,13 +48,21 @@ static void falcon_walker_walk_dir(const falcon_object_t *parent,
 
 	dir = g_dir_open(parent->name, 0, &error);
 	if (!dir) {
+		error->code = FALCON_ERROR_CRITICAL;
 		falcon_error_report(error);
 		g_error_free(error);
 		return;
 	}
 
 	while ((entry = g_dir_read_name(dir))) {
-		path = g_build_path(G_DIR_SEPARATOR_S, parent->name, entry,
+		name = g_filename_to_utf8(entry, -1, NULL, NULL, &error);
+		if (!name) {
+			error->code = FALCON_ERROR_CRITICAL;
+			falcon_error_report(error);
+			g_error_free(error);
+			return;
+		}
+		path = g_build_path(G_DIR_SEPARATOR_S, parent->name, name,
 		                    (const gchar *)NULL);
 		object = falcon_object_new(path);
 		if (cached)
@@ -64,6 +73,7 @@ static void falcon_walker_walk_dir(const falcon_object_t *parent,
 		falcon_task_add(object);
 
 		g_free(path);
+		g_free(name);
 		path = NULL;
 	}
 
@@ -74,6 +84,8 @@ static gboolean falcon_walker_runeach(falcon_object_t *object,
                                       falcon_cache_t *cache) {
 	falcon_object_t *cached = NULL;
 	falcon_event_code_t event = EVENT_NONE;
+	gchar *name = NULL;
+	GError *error = NULL;
 	struct stat info;
 	memset(&info, 0, sizeof(struct stat));
 
@@ -94,12 +106,21 @@ static gboolean falcon_walker_runeach(falcon_object_t *object,
 		return TRUE;
 	}
 
+	name = g_filename_to_utf8(falcon_object_get_name(object), -1,
+	                          NULL, NULL, &error);
+	if (!name) {
+		error->code = FALCON_ERROR_CRITICAL;
+		falcon_error_report(error);
+		g_error_free(error);
+		return FALSE;
+	}
 
-	if (g_stat(falcon_object_get_name(object), &info) != 0) {
+	if (g_stat(name, &info) != 0) {
 		g_warning(_("Failed to obtain information for object %s, skipping..."),
 		          falcon_object_get_name(object));
 		return FALSE;
 	}
+	g_free(name);
 
 	falcon_object_set_mode(object, info.st_mode);
 	falcon_object_set_size(object, info.st_size);
