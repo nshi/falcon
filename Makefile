@@ -15,6 +15,7 @@ SOURCES = src/cache.o \
           src/trie.o
 FALCON = tests/main.o
 LOADER = tests/loader.o
+CACHE_READER = tests/cache_reader.o
 TRIE = src/trie.o tests/trie.o
 
 all: falcon
@@ -22,11 +23,17 @@ all: falcon
 trie: $(TRIE)
 	$(CC) $(TRIE) -o $@
 
+cache_reader: $(CACHE_READER) $(SOURCES)
+	$(CC) $(GLIBLIBS) $(CLIBS) $(CACHE_READER) $(SOURCES) -o $@
+
 loader: $(LOADER) $(SOURCES)
 	$(CC) $(GLIBLIBS) $(CLIBS) $(LOADER) $(SOURCES) -o $@
 
 falcon: $(FALCON) $(SOURCES)
 	$(CC) $(GLIBLIBS) $(CLIBS) $(FALCON) $(SOURCES) -o $@
+
+$(CACHE_READER): %.o: %.c
+	$(CC) $(GLIBFLAGS) $(CFLAGS) -c $< -o $@
 
 $(LOADER): %.o: %.c
 	$(CC) $(GLIBFLAGS) $(CFLAGS) -c $< -o $@
@@ -39,4 +46,4 @@ $(SOURCES): %.o: %.c
 
 .PHONY: clean
 clean:
-	rm -f tests/*.o src/*.o falcon loader trie *.out
+	rm -f tests/*.o src/*.o falcon loader cache_reader trie *.out
