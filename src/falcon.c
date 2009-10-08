@@ -203,7 +203,7 @@ void falcon_shutdown(const gchar *name, gboolean wait)
 	falcon_context_free(wait);
 }
 
-void falcon_add(const gchar *name, gboolean watch)
+gboolean falcon_add(const gchar *name, gboolean watch)
 {
 	falcon_object_t *object = NULL;
 	gchar *path = NULL;
@@ -211,12 +211,12 @@ void falcon_add(const gchar *name, gboolean watch)
 	if (!context.lock || !context.cache || !context.walkers
 	    || !context.running_cond) {
 		g_critical(_("Please initialize the system first."));
-		return;
+		return FALSE;
 	}
 
 	if (!name) {
 		g_warning(_("Failed to add object, name not provided."));
-		return;
+		return FALSE;
 	}
 
 	path = falcon_normalize_path(name);
@@ -233,6 +233,61 @@ void falcon_add(const gchar *name, gboolean watch)
 	}
 
 	g_free(path);
+
+	return TRUE;
+}
+
+gboolean falcon_delete(const gchar *name)
+{
+	gchar *path = NULL;
+
+	if (!context.lock || !context.cache || !context.walkers
+	    || !context.running_cond) {
+		g_critical(_("Please initialize the system first."));
+		return FALSE;
+	}
+
+	if (!name) {
+		g_warning(_("Failed to delete object, name not provided."));
+		return FALSE;
+	}
+
+	path = falcon_normalize_path(name);
+
+	g_debug(_("Deleting \"%s\" by name."), path);
+
+	g_mutex_lock(context.lock);
+	while (context.running != 0
+	       || g_queue_get_length(&context.pending_objects) > 0)
+		g_cond_wait(context.running_cond, context.lock);
+	falcon_cache_foreach_children(context.cache, path, falcon_set_watch_one,
+	                              GINT_TO_POINTER(FALSE));
+	if (!falcon_cache_delete(context.cache, path))
+	    g_warning(_("Failed to delete \"%s\" by name."), path);
+	g_mutex_unlock(context.lock);
+
+	g_free(path);
+
+	return TRUE;
+}
+
+void falcon_clear(void)
+{
+	if (!context.lock || !context.cache || !context.walkers
+	    || !context.running_cond) {
+		g_critical(_("Please initialize the system first."));
+		return;
+	}
+
+	g_debug(_("Clearing all objects."));
+
+	g_mutex_lock(context.lock);
+	while (context.running != 0
+	       || g_queue_get_length(&context.pending_objects) > 0)
+		g_cond_wait(context.running_cond, context.lock);
+	falcon_watcher_clear();
+	falcon_cache_clear(context.cache);
+	g_mutex_unlock(context.lock);
 }
 
 gboolean falcon_set_watch(const gchar *name, gboolean watch)

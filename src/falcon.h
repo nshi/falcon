@@ -36,10 +36,24 @@ void falcon_init(const gchar *name);
 void falcon_shutdown(const gchar *name, gboolean wait);
 
 /*
- * This adds an object with the given name to the cache. Watch the directory for
+ * Adds an object with the given name to the cache. Watch the directory for
  * changes if watch is TRUE.
  */
-void falcon_add(const gchar *name, gboolean watch);
+gboolean falcon_add(const gchar *name, gboolean watch);
+/*
+ * Deletes an object with the given name as well as its descendants.
+ *
+ * Attention: this is a blocking function. It has to wait until all the
+ * currently pending objects have been processed.
+ */
+gboolean falcon_delete(const gchar *name);
+/*
+ * Clears all objects.
+ *
+ * Attention: this is a blocking function. It has to wait until all the
+ * currently pending objects have been processed.
+ */
+void falcon_clear(void);
 /*
  * Sets the watchability flag of an object to watch.
  */
