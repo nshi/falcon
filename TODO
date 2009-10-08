@@ -44,6 +44,7 @@
    sucks.
 ** DONE [#A] Create our own binary file format.							:Bug:
    CLOSED: [2009-10-06 Tue 18:18]
+** TODO [#C] Maybe we should switch to reentrant lock.			:Enhancement:
 * Falcon
 ** DONE [#B] Implement the main function.							:Feature:
    CLOSED: [2009-09-13 Sun 14:40]
@@ -61,6 +62,15 @@
 ** DONE [#A] Fix changing watchability flag.							:Bug:
    CLOSED: [2009-10-03 Sat 22:39]
    Need to recursively change all its descendants.
+** DONE [#A] Implement delete function.								:Feature:
+   CLOSED: [2009-10-08 Thu 11:54]
+   Deletes the object and all its descendants from the cache, watcher, and the
+   currently pending queue (make sure that it's not in one of the walker).
+** TODO [#B] Possible optimization in falcon_push().			:Enhancement:
+   Maybe we don't need to check if the object is already in the pending queue.
+** TODO [#C] Combine the common part of the public functions.	:Enhancement:
+** DONE [#A] Not scanning delete items correctly.						:Bug:
+   CLOSED: [2009-10-08 Thu 16:11]
 * Watcher
 ** DONE [#B] Implement watcher.										:Feature:
    CLOSED: [2009-09-15 Tue 18:35]
