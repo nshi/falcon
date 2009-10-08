@@ -1,6 +1,8 @@
 CC = gcc
 GLIBFLAGS = `pkg-config --cflags glib-2.0 gthread-2.0 gio-2.0 gobject-2.0`
 GLIBLIBS = `pkg-config --libs glib-2.0 gthread-2.0 gio-2.0 gobject-2.0`
+XMMS2FLAGS = `pkg-config --cflags xmms2-client xmms2-client-glib`
+XMMS2LIBS = `pkg-config --libs xmms2-client xmms2-client-glib`
 CFLAGS = -Isrc -DG_LOG_DOMAIN=\"falcon\" -Wall -Wextra -Wformat -Werror \
          -fPIC -g -pg
 CLIBS = -Lsrc -fPIC -g -pg
@@ -17,6 +19,7 @@ FALCON = tests/main.o
 LOADER = tests/loader.o
 CACHE_READER = tests/cache_reader.o
 TRIE = src/trie.o tests/trie.o
+XMMS2_MONITOR = tests/xmms2_monitor.o
 
 all: falcon
 
@@ -32,6 +35,9 @@ loader: $(LOADER) $(SOURCES)
 falcon: $(FALCON) $(SOURCES)
 	$(CC) $(GLIBLIBS) $(CLIBS) $(FALCON) $(SOURCES) -o $@
 
+xmms2_monitor: $(XMMS2_MONITOR) $(SOURCES)
+	$(CC) $(GLIBLIBS) $(XMMS2LIBS) $(CLIBS) $(XMMS2_MONITOR) $(SOURCES) -o $@
+
 $(CACHE_READER): %.o: %.c
 	$(CC) $(GLIBFLAGS) $(CFLAGS) -c $< -o $@
 
@@ -41,9 +47,12 @@ $(LOADER): %.o: %.c
 $(FALCON): %.o: %.c
 	$(CC) $(GLIBFLAGS) $(CFLAGS) -c $< -o $@
 
+$(XMMS2_MONITOR): %.o: %.c
+	$(CC) $(GLIBFLAGS) $(XMMS2FLAGS) $(CFLAGS) -c $< -o $@
+
 $(SOURCES): %.o: %.c
 	$(CC) $(GLIBFLAGS) $(CFLAGS) -c $< -o $@
 
 .PHONY: clean
 clean:
-	rm -f tests/*.o src/*.o falcon loader cache_reader trie *.out
+	rm -f tests/*.o src/*.o falcon loader cache_reader xmms2_monitor trie *.out
