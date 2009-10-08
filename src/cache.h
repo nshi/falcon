@@ -30,11 +30,7 @@
 #include "common.h"
 #include "trie.h"
 
-typedef struct {
-	GMutex *lock;
-	guint64 count;
-	trie_node_t *objects;
-} falcon_cache_t;
+typedef struct falcon_cache_st falcon_cache_t;
 
 falcon_cache_t *falcon_cache_new(void);
 void falcon_cache_free(falcon_cache_t *cache);
@@ -56,8 +52,10 @@ gboolean falcon_cache_delete(falcon_cache_t *cache, const gchar *name);
 void falcon_cache_clear(falcon_cache_t *cache);
 void falcon_cache_foreach_top(falcon_cache_t *cache, GFunc func,
                               gpointer userdata);
-void falcon_cache_foreach_children(falcon_cache_t *cache, const gchar *name,
-                                   GFunc func, gpointer userdata);
+void falcon_cache_foreach_child(falcon_cache_t *cache, const gchar *name,
+                                GFunc func, gpointer userdata);
+void falcon_cache_foreach_descendant(falcon_cache_t *cache, const gchar *name,
+                                     GFunc func, gpointer userdata);
 
 gboolean falcon_cache_load(falcon_cache_t *cache, const gchar *name);
 gboolean falcon_cache_save(const falcon_cache_t *cache, const gchar *name);

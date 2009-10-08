@@ -110,7 +110,7 @@ gboolean falcon_watcher_add(const falcon_object_t *object)
 	gboolean absolute = FALSE;
 
 	g_return_val_if_fail(object, FALSE);
-	g_return_val_if_fail(S_ISDIR(object->mode), FALSE);
+	g_return_val_if_fail(falcon_object_isdir(object), FALSE);
 
 	if (!context.monitors || !context.lock || !context.cache) {
 		g_critical(_("Failed to add %s, watcher not initialized yet."),

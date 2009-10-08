@@ -29,6 +29,12 @@
 
 #include "cache.h"
 
+struct falcon_cache_st {
+	GMutex *lock;
+	guint64 count;
+	trie_node_t *objects;
+};
+
 static void falcon_cache_recursive_foreach_top(const trie_node_t *node,
                                                GFunc func, gpointer udata) {
 	falcon_object_t *data = NULL;
@@ -43,14 +49,15 @@ static void falcon_cache_recursive_foreach_top(const trie_node_t *node,
 	}
 }
 
-static void falcon_cache_recursive_foreach_children(const trie_node_t *node,
-                                                    GFunc func, gpointer udata) {
+static void falcon_cache_recursive_foreach_descendant(const trie_node_t *node,
+                                                      GFunc func,
+                                                      gpointer udata) {
 	falcon_object_t *data = NULL;
 
 	while (node) {
 		if (trie_child(node))
-			falcon_cache_recursive_foreach_children(trie_child(node), func,
-			                                        udata);
+			falcon_cache_recursive_foreach_descendant(trie_child(node), func,
+			                                          udata);
 		if ((data = trie_data(node)))
 			func(data, udata);
 		node = trie_next(node);
@@ -118,13 +125,13 @@ gboolean falcon_cache_add(falcon_cache_t *cache, falcon_object_t *object)
 	g_return_val_if_fail(object, FALSE);
 
 	g_mutex_lock(cache->lock);
-	old_node = trie_find(cache->objects, dup->name);
+	old_node = trie_find(cache->objects, falcon_object_get_name(dup));
 
 	if (old_node && (old = trie_data(old_node))) {
 		falcon_object_free(old);
 		trie_set_data(old_node, dup);
 	} else {
-		trie_add(cache->objects, dup->name, dup);
+		trie_add(cache->objects, falcon_object_get_name(dup), dup);
 		cache->count++;
 	}
 
@@ -178,8 +185,30 @@ void falcon_cache_foreach_top(falcon_cache_t *cache, GFunc func,
 	g_mutex_unlock(cache->lock);
 }
 
-void falcon_cache_foreach_children(falcon_cache_t *cache, const gchar *name,
-                                   GFunc func, gpointer userdata) {
+void falcon_cache_foreach_child(falcon_cache_t *cache, const gchar *name,
+                                GFunc func, gpointer userdata) {
+	trie_node_t *node = NULL;
+	trie_node_t *next = NULL;
+	falcon_object_t *data = NULL;
+
+	g_return_if_fail(cache);
+	g_return_if_fail(func);
+
+	g_mutex_lock(cache->lock);
+	node = trie_find(cache->objects, name);
+	next = trie_child(node);
+	while (next) {
+		if ((data = trie_data(next)))
+			func(data, userdata);
+		next = trie_next(next);
+	}
+	if ((data = trie_data(node)))
+		func(data, userdata);
+	g_mutex_unlock(cache->lock);
+}
+
+void falcon_cache_foreach_descendant(falcon_cache_t *cache, const gchar *name,
+                                     GFunc func, gpointer userdata) {
 	trie_node_t *node = NULL;
 	falcon_object_t *data = NULL;
 
@@ -188,7 +217,7 @@ void falcon_cache_foreach_children(falcon_cache_t *cache, const gchar *name,
 
 	g_mutex_lock(cache->lock);
 	node = trie_find(cache->objects, name);
-	falcon_cache_recursive_foreach_children(trie_child(node), func, userdata);
+	falcon_cache_recursive_foreach_descendant(trie_child(node), func, userdata);
 	if ((data = trie_data(node)))
 		func(data, userdata);
 	g_mutex_unlock(cache->lock);

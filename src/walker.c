@@ -33,8 +33,19 @@
 #include "handler.h"
 #include "watcher.h"
 
+static void falcon_walker_check_exist(gpointer data, gpointer userdata ATTRIBUTE_UNUSED)
+{
+	falcon_object_t *object = (falcon_object_t *)data;
+
+	g_debug(_("Checking \"%s\" for existence."), falcon_object_get_name(object));
+
+	if (!g_file_test(falcon_object_get_name(object), G_FILE_TEST_EXISTS))
+		falcon_task_add(falcon_object_copy(object));
+}
+
 static void falcon_walker_walk_dir(const falcon_object_t *parent,
-                                   const falcon_object_t *cached) {
+                                   const falcon_object_t *cached)
+{
 	GDir *dir = NULL;
 	GError *error = NULL;
 	const gchar *entry = NULL;
@@ -44,9 +55,9 @@ static void falcon_walker_walk_dir(const falcon_object_t *parent,
 
 	g_return_if_fail(parent);
 
-	g_debug(_("Walking directory \"%s\"."), parent->name);
+	g_debug(_("Walking directory \"%s\"."), falcon_object_get_name(parent));
 
-	dir = g_dir_open(parent->name, 0, &error);
+	dir = g_dir_open(falcon_object_get_name(parent), 0, &error);
 	if (!dir) {
 		error->code = FALCON_ERROR_CRITICAL;
 		falcon_error_report(error);
@@ -62,8 +73,8 @@ static void falcon_walker_walk_dir(const falcon_object_t *parent,
 			g_error_free(error);
 			return;
 		}
-		path = g_build_path(G_DIR_SEPARATOR_S, parent->name, name,
-		                    (const gchar *)NULL);
+		path = g_build_path(G_DIR_SEPARATOR_S, falcon_object_get_name(parent),
+		                    name, (const gchar *)NULL);
 		object = falcon_object_new(path);
 		if (cached)
 			falcon_object_set_watch(object, falcon_object_get_watch(cached));
@@ -98,7 +109,7 @@ static gboolean falcon_walker_runeach(falcon_object_t *object,
 
 	if (cached && !g_file_test(falcon_object_get_name(object),
 	                           G_FILE_TEST_EXISTS)) {
-		if (S_ISDIR(cached->mode))
+		if (falcon_object_isdir(cached))
 			falcon_handler(cached, EVENT_DIR_DELETED, cache);
 		else
 			falcon_handler(cached, EVENT_FILE_DELETED, cache);
@@ -135,8 +146,10 @@ static gboolean falcon_walker_runeach(falcon_object_t *object,
 		else if (!falcon_object_equal(object, cached))
 			event = EVENT_DIR_CHANGED;
 
+		falcon_cache_foreach_child(cache, falcon_object_get_name(object),
+		                           falcon_walker_check_exist, NULL);
 		falcon_walker_walk_dir(object, cached);
-		if (object->watch)
+		if (falcon_object_get_watch(object))
 			falcon_watcher_add(object);
 	} else if (g_file_test(falcon_object_get_name(object),
 	                       G_FILE_TEST_IS_REGULAR)) {

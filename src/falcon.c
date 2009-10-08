@@ -260,8 +260,8 @@ gboolean falcon_delete(const gchar *name)
 	while (context.running != 0
 	       || g_queue_get_length(&context.pending_objects) > 0)
 		g_cond_wait(context.running_cond, context.lock);
-	falcon_cache_foreach_children(context.cache, path, falcon_set_watch_one,
-	                              GINT_TO_POINTER(FALSE));
+	falcon_cache_foreach_descendant(context.cache, path, falcon_set_watch_one,
+	                                GINT_TO_POINTER(FALSE));
 	if (!falcon_cache_delete(context.cache, path))
 	    g_warning(_("Failed to delete \"%s\" by name."), path);
 	g_mutex_unlock(context.lock);
@@ -312,8 +312,8 @@ gboolean falcon_set_watch(const gchar *name, gboolean watch)
 	        watch ? _("true") : _("false"));
 
 	g_mutex_lock(context.lock);
-	falcon_cache_foreach_children(context.cache, path, falcon_set_watch_one,
-	                              GINT_TO_POINTER(watch));
+	falcon_cache_foreach_descendant(context.cache, path, falcon_set_watch_one,
+	                                GINT_TO_POINTER(watch));
 	g_mutex_unlock(context.lock);
 	g_free(path);
 

@@ -35,13 +35,7 @@
  * Only one thread will modify a single object at a time, so there's no need to
  * lock it.
  */
-typedef struct {
-	gchar *name;
-	guint64 size;
-	guint64 time;
-	guint32 mode;
-	gboolean watch;
-} falcon_object_t;
+typedef struct falcon_object_st falcon_object_t;
 
 /*
  * If name is not NULL, it must be a NULL-terminated string.

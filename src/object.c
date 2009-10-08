@@ -29,6 +29,14 @@
 
 #include "object.h"
 
+struct falcon_object_st {
+	gchar *name;
+	guint64 size;
+	guint64 time;
+	guint32 mode;
+	gboolean watch;
+};
+
 falcon_object_t *falcon_object_new(const gchar *name)
 {
 	falcon_object_t *object = g_new0(falcon_object_t, 1);
