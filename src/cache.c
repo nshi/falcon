@@ -144,7 +144,8 @@ gboolean falcon_cache_delete(falcon_cache_t *cache, const gchar *name)
 	node = trie_find(cache->objects, name);
 	if (!node) {
 		g_mutex_unlock(cache->lock);
-		g_warning(_("Deleting \"%s\" from cache before creation."), name);
+		g_warning(_("Failed to delete \"%s\", it does not exist in the cache."),
+		          name);
 		return FALSE;
 	}
 
@@ -153,6 +154,17 @@ gboolean falcon_cache_delete(falcon_cache_t *cache, const gchar *name)
 	g_mutex_unlock(cache->lock);
 
 	return TRUE;
+}
+
+void falcon_cache_clear(falcon_cache_t *cache)
+{
+	g_return_if_fail(cache);
+
+	g_mutex_lock(cache->lock);
+	trie_free(cache->objects, (trie_free_func)falcon_object_free);
+	cache->objects = trie_new(G_DIR_SEPARATOR_S, 1);
+	cache->count = 0;
+	g_mutex_unlock(cache->lock);
 }
 
 void falcon_cache_foreach_top(falcon_cache_t *cache, GFunc func,

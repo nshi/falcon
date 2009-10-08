@@ -53,6 +53,7 @@ gboolean falcon_cache_add(falcon_cache_t *cache, falcon_object_t *object);
  * Deletes an object.
  */
 gboolean falcon_cache_delete(falcon_cache_t *cache, const gchar *name);
+void falcon_cache_clear(falcon_cache_t *cache);
 void falcon_cache_foreach_top(falcon_cache_t *cache, GFunc func,
                               gpointer userdata);
 void falcon_cache_foreach_children(falcon_cache_t *cache, const gchar *name,
