@@ -58,6 +58,10 @@ void falcon_clear(void);
  * Sets the watchability flag of an object to watch.
  */
 gboolean falcon_set_watch(const gchar *name, gboolean watch);
+/*
+ * Checks if the given path is already in the cache.
+ */
+gboolean falcon_has(const gchar *name);
 
 void falcon_task_add(falcon_object_t *object);
 void falcon_failed_add(falcon_object_t *object);
