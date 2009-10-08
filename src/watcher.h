@@ -40,5 +40,6 @@ void falcon_watcher_shutdown(void);
  */
 gboolean falcon_watcher_add(const falcon_object_t *object);
 gboolean falcon_watcher_delete(const falcon_object_t *object);
+void falcon_watcher_clear(void);
 
 #endif

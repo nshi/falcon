@@ -169,3 +169,17 @@ gboolean falcon_watcher_delete(const falcon_object_t *object)
 
 	return ret;
 }
+
+void falcon_watcher_clear(void)
+{
+	if (!context.monitors || !context.lock || !context.cache) {
+		g_critical(_("Failed to clear watchers"));
+		return;
+	}
+
+	g_mutex_lock(context.lock);
+	g_hash_table_remove_all(context.monitors);
+	g_mutex_unlock(context.lock);
+
+	g_debug(_("Stopped watching all objects."));
+}
