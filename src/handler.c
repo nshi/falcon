@@ -38,7 +38,8 @@ static GHashTable *registry = NULL;
 static void
 falcon_handler_created_event(falcon_object_t *object,
                              falcon_event_code_t event ATTRIBUTE_UNUSED,
-                             falcon_cache_t *cache) {
+                             falcon_cache_t *cache)
+{
 	if (!falcon_cache_add(cache, object))
 		g_warning(_("Failed to add %s to the cache."),
 		          falcon_object_get_name(object));
@@ -47,7 +48,8 @@ falcon_handler_created_event(falcon_object_t *object,
 static void
 falcon_handler_deleted_event(falcon_object_t *object,
                              falcon_event_code_t event ATTRIBUTE_UNUSED,
-                             falcon_cache_t *cache) {
+                             falcon_cache_t *cache)
+{
 	if (!falcon_cache_delete(cache, falcon_object_get_name(object)))
 		g_warning(_("Failed to delete %s from the cache."),
 		          falcon_object_get_name(object));
@@ -56,7 +58,8 @@ falcon_handler_deleted_event(falcon_object_t *object,
 static void
 falcon_handler_changed_event(falcon_object_t *object,
                              falcon_event_code_t event ATTRIBUTE_UNUSED,
-                             falcon_cache_t *cache) {
+                             falcon_cache_t *cache)
+{
 	if (!falcon_cache_add(cache, object))
 		g_warning(_("Failed to change %s in the cache."),
 		          falcon_object_get_name(object));
@@ -71,7 +74,8 @@ static inline gint falcon_handler_compare(gconstpointer a, gconstpointer b)
 }
 
 gboolean falcon_handler_register(falcon_event_code_t events,
-                                 falcon_handler_func func, gpointer userdata) {
+                                 falcon_handler_func func, gpointer userdata)
+{
 	GHashTableIter iter;
 	gpointer key;
 	GSList *list = NULL;
@@ -104,7 +108,8 @@ gboolean falcon_handler_register(falcon_event_code_t events,
 }
 
 gboolean falcon_handler_unregister(falcon_event_code_t events,
-                                   falcon_handler_func func) {
+                                   falcon_handler_func func)
+{
 	GHashTableIter iter;
 	gpointer key;
 	GSList *list = NULL;
@@ -176,7 +181,8 @@ void falcon_handler_registry_shutdown(void)
 }
 
 void falcon_handler(falcon_object_t *object, falcon_event_code_t event,
-                    falcon_cache_t *cache) {
+                    falcon_cache_t *cache)
+{
 	falcon_handler_t *value = NULL;
 	GSList *list = NULL;
 	GSList *cur = NULL;

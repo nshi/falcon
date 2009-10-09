@@ -81,7 +81,8 @@ static trie_node_t *find_child(trie_node_t *node, const char *key, size_t len)
 
 /* If create is 1, create nodes on the way of searching. */
 static trie_node_t *find_and_create(trie_node_t *root, const char *key,
-                                    int create) {
+                                    int create)
+{
 	trie_node_t *parent = root;
 	trie_node_t *cur = NULL;
 	const char *start = NULL;

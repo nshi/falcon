@@ -139,7 +139,8 @@ gboolean falcon_object_load(falcon_object_t *object, void *userdata)
 }
 
 gboolean falcon_object_equal(const falcon_object_t *a,
-                             const falcon_object_t *b) {
+                             const falcon_object_t *b)
+{
 	g_return_val_if_fail(a, FALSE);
 	g_return_val_if_fail(b, FALSE);
 

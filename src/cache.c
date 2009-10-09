@@ -36,7 +36,8 @@ struct falcon_cache_st {
 };
 
 static void falcon_cache_recursive_foreach_top(const trie_node_t *node,
-                                               GFunc func, gpointer udata) {
+                                               GFunc func, gpointer udata)
+{
 	falcon_object_t *data = NULL;
 
 	while (node) {
@@ -50,8 +51,8 @@ static void falcon_cache_recursive_foreach_top(const trie_node_t *node,
 }
 
 static void falcon_cache_recursive_foreach_descendant(const trie_node_t *node,
-                                                      GFunc func,
-                                                      gpointer udata) {
+                                                      GFunc func, gpointer udata)
+{
 	falcon_object_t *data = NULL;
 
 	while (node) {
@@ -175,7 +176,8 @@ void falcon_cache_clear(falcon_cache_t *cache)
 }
 
 void falcon_cache_foreach_top(falcon_cache_t *cache, GFunc func,
-                              gpointer userdata) {
+                              gpointer userdata)
+{
 	g_return_if_fail(cache);
 	g_return_if_fail(func);
 
@@ -186,7 +188,8 @@ void falcon_cache_foreach_top(falcon_cache_t *cache, GFunc func,
 }
 
 void falcon_cache_foreach_child(falcon_cache_t *cache, const gchar *name,
-                                GFunc func, gpointer userdata) {
+                                GFunc func, gpointer userdata)
+{
 	trie_node_t *node = NULL;
 	trie_node_t *next = NULL;
 	falcon_object_t *data = NULL;
@@ -208,7 +211,8 @@ void falcon_cache_foreach_child(falcon_cache_t *cache, const gchar *name,
 }
 
 void falcon_cache_foreach_descendant(falcon_cache_t *cache, const gchar *name,
-                                     GFunc func, gpointer userdata) {
+                                     GFunc func, gpointer userdata)
+{
 	trie_node_t *node = NULL;
 	falcon_object_t *data = NULL;
 

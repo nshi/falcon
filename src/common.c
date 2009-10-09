@@ -30,7 +30,8 @@
 static GLogLevelFlags falcon_log_level = DEFAULT_LOG_LEVEL;
 
 void falcon_log_handler (const gchar *log_domain, GLogLevelFlags log_level,
-                         const gchar *message, gpointer user_data) {
+                         const gchar *message, gpointer user_data)
+{
 	if (log_level > falcon_log_level)
 		return;
 

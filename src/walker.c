@@ -92,7 +92,8 @@ static void falcon_walker_walk_dir(const falcon_object_t *parent,
 }
 
 static gboolean falcon_walker_runeach(falcon_object_t *object,
-                                      falcon_cache_t *cache) {
+                                      falcon_cache_t *cache)
+{
 	falcon_object_t *cached = NULL;
 	falcon_event_code_t event = EVENT_NONE;
 	gchar *name = NULL;

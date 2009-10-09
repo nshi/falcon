@@ -54,7 +54,8 @@ static void falcon_watcher_event(GFileMonitor *monitor ATTRIBUTE_UNUSED,
                                  GFile *entity,
                                  GFile *other ATTRIBUTE_UNUSED,
                                  GFileMonitorEvent event ATTRIBUTE_UNUSED,
-                                 gpointer userdata) {
+                                 gpointer userdata)
+{
 	gboolean absolute = GPOINTER_TO_INT(userdata);
 	GFile *relative_base = NULL;
 	gchar *path = NULL;
