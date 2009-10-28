@@ -169,7 +169,7 @@ void falcon_init(const gchar *name)
 	g_log_set_handler(G_LOG_DOMAIN, G_LOG_LEVEL_MASK, falcon_log_handler, NULL);
 
 	falcon_context_init();
-	falcon_handler_registry_init();
+	falcon_handler_init();
 	falcon_watcher_init(context.cache);
 
 	falcon_cache_load(context.cache, name);
@@ -198,7 +198,7 @@ void falcon_shutdown(const gchar *name, gboolean wait)
 	falcon_cache_save(context.cache, name);
 
 	falcon_watcher_shutdown();
-	falcon_handler_registry_shutdown();
+	falcon_handler_shutdown();
 	/* Maybe we have to save the cache before freeing. */
 	falcon_context_free(wait);
 }
