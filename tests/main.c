@@ -6,6 +6,7 @@
 #include "object.h"
 #include "events.h"
 #include "common.h"
+#include "filter.h"
 
 GMainLoop *ml = NULL;
 
@@ -28,6 +29,8 @@ int main(int argc ATTRIBUTE_UNUSED, char **argv)
 
 	falcon_set_log_level(G_LOG_LEVEL_MESSAGE);
 	falcon_handler_register(EVENT_ALL, test_handler, NULL);
+	falcon_filter_register(TRUE, "skip.*", NULL);
+	falcon_filter_register(FALSE, "/skip.*", NULL);
 
 	falcon_add(argv[1], TRUE);
 
