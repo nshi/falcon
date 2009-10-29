@@ -20,6 +20,11 @@
 ** TODO [#C] Reduce memory footprints.							:Enhancement:
 ** DONE [#A] Convert filenames to/from UTF-8 after/before disk operation. :Bug:
    CLOSED: [2009-10-06 Tue 18:18]
+** TODO [#C] Allow pausing the whole system.						:Feature:
+   There might be cases where the watching directory is on an external drive,
+   and the drive is unmounted. Falcon shouldn't generate DELETED event in this
+   case, instead it should just pause monitoring. How to handle the case where
+   the device is not mounted when Falcon is started?
 * Handler
 ** DONE [#B] Handle changed event.									:Feature:
    CLOSED: [2009-09-14 Mon 20:12]
@@ -99,6 +104,8 @@
 ** DONE [#A] Implement trie_foreach with depth-first traversal.		:Feature:
    CLOSED: [2009-09-28 Mon 17:34]
 * Filter
-** TODO [#A] Implement filter.										:Feature:
+** DONE [#A] Implement filter.										:Feature:
+   CLOSED: [2009-10-29 Thu 00:51]
+** TODO [#C] After unregisteration, rescan the directory.		:Enhancement:
 * Testing
 ** TODO [#C] Write unit tests.									:Enhancement:
