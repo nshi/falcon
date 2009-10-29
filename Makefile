@@ -14,6 +14,7 @@ SOURCES = src/cache.o \
           src/object.o \
           src/walker.o \
           src/watcher.o \
+          src/filter.o \
           src/trie.o
 FALCON = tests/main.o
 LOADER = tests/loader.o

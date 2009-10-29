@@ -28,7 +28,24 @@
 #include "common.h"
 #include "object.h"
 
-gboolean (*falcon_dir_filter)(falcon_object_t *object);
-gboolean (*falcon_file_filter)(falcon_object_t *object);
+typedef gboolean (*falcon_filter_func)(falcon_object_t *object);
+
+gboolean falcon_filter_register(gboolean is_dir, const gchar *pattern,
+                                falcon_filter_func func);
+gboolean falcon_filter_unregister(gboolean is_dir, const gchar *pattern,
+                                  falcon_filter_func func);
+
+/*
+ * This should be called at startup.
+ */
+void falcon_filter_init(void);
+void falcon_filter_shutdown(void);
+
+/*
+ * This is the filter dispatcher. All custom filters are dispatched from
+ * here. If any one of the custom filter returns true, the object is skipped
+ * without any further actions.
+ */
+gboolean falcon_filter(falcon_object_t *object);
 
 #endif

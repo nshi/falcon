@@ -26,6 +26,7 @@
 #include <glib.h>
 
 #include "falcon.h"
+#include "filter.h"
 #include "handler.h"
 #include "watcher.h"
 
@@ -169,6 +170,7 @@ void falcon_init(const gchar *name)
 	g_log_set_handler(G_LOG_DOMAIN, G_LOG_LEVEL_MASK, falcon_log_handler, NULL);
 
 	falcon_context_init();
+	falcon_filter_init();
 	falcon_handler_init();
 	falcon_watcher_init(context.cache);
 
