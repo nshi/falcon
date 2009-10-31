@@ -22,46 +22,14 @@
  * THE SOFTWARE.
  */
 
-#ifndef _FALCON_H_
-#define _FALCON_H_
+#ifndef _FALCON_PRIV_H_
+#define _FALCON_PRIV_H_
 
 #include <glib.h>
 
 #include "common.h"
 #include "cache.h"
 #include "walker.h"
-
-void falcon_init(const gchar *name);
-/* Waits for all the tasks to be finished if wait is TRUE. */
-void falcon_shutdown(const gchar *name, gboolean wait);
-
-/*
- * Adds an object with the given name to the cache. Watch the directory for
- * changes if watch is TRUE.
- */
-gboolean falcon_add(const gchar *name, gboolean watch);
-/*
- * Deletes an object with the given name as well as its descendants.
- *
- * Attention: this is a blocking function. It has to wait until all the
- * currently pending objects have been processed.
- */
-gboolean falcon_delete(const gchar *name);
-/*
- * Clears all objects.
- *
- * Attention: this is a blocking function. It has to wait until all the
- * currently pending objects have been processed.
- */
-void falcon_clear(void);
-/*
- * Sets the watchability flag of an object to watch.
- */
-gboolean falcon_set_watch(const gchar *name, gboolean watch);
-/*
- * Checks if the given path is already in the cache.
- */
-gboolean falcon_has(const gchar *name);
 
 void falcon_task_add(falcon_object_t *object);
 void falcon_failed_add(falcon_object_t *object);

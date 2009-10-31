@@ -58,12 +58,12 @@ trie_node_t *trie_find(trie_node_t *root, const char *key);
 /* Applies func to each node. Traverses the tree in depth-first pattern. */
 void trie_foreach(trie_node_t *root, trie_func func, void *udata);
 
-inline const char *trie_key(const trie_node_t *node);
-inline void *trie_data(const trie_node_t *node);
-inline void trie_set_data(trie_node_t *node, void *data);
-inline trie_node_t *trie_parent(const trie_node_t *node);
-inline trie_node_t *trie_child(const trie_node_t *node);
-inline trie_node_t *trie_prev(const trie_node_t *node);
-inline trie_node_t *trie_next(const trie_node_t *node);
+const char *trie_key(const trie_node_t *node);
+void *trie_data(const trie_node_t *node);
+void trie_set_data(trie_node_t *node, void *data);
+trie_node_t *trie_parent(const trie_node_t *node);
+trie_node_t *trie_child(const trie_node_t *node);
+trie_node_t *trie_prev(const trie_node_t *node);
+trie_node_t *trie_next(const trie_node_t *node);
 
 #endif

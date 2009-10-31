@@ -36,20 +36,14 @@
 #define ATTRIBUTE_UNUSED __attribute__((__unused__))
 #endif
 
-/* Errors */
-#define FALCON_ERROR_ERROR G_LOG_LEVEL_ERROR
-#define FALCON_ERROR_CRITICAL G_LOG_LEVEL_CRITICAL
-#define FALCON_ERROR_WARNING G_LOG_LEVEL_WARNING
-
 /* Constants */
 #define MAX_WALKERS 3
 #define OBJECTS_PER_THREAD 20
 
 void falcon_log_handler (const gchar *log_domain, GLogLevelFlags log_level,
                          const gchar *message, gpointer user_data);
-void falcon_set_log_level(GLogLevelFlags log_level);
 
-inline gint falcon_object_compare(gconstpointer a, gconstpointer b);
+gint falcon_object_compare(gconstpointer a, gconstpointer b);
 void falcon_error_report(GError *error);
 
 #endif

@@ -28,14 +28,9 @@
 #include <sys/types.h>
 #include <glib.h>
 
+#include "include/falcon.h"
 #include "common.h"
 #include "trie.h"
-
-/*
- * Only one thread will modify a single object at a time, so there's no need to
- * lock it.
- */
-typedef struct falcon_object_st falcon_object_t;
 
 /*
  * If name is not NULL, it must be a NULL-terminated string.
@@ -54,20 +49,9 @@ void falcon_object_save(trie_node_t *node, void *userdata);
  */
 gboolean falcon_object_load(falcon_object_t *object, void *userdata);
 
-/*
- * This doesn't compare the watchability field, because it's not considered as
- * an attribute of the actual object on the file system.
- */
-inline gboolean falcon_object_equal(const falcon_object_t *a,
-                                    const falcon_object_t *b);
-inline const gchar *falcon_object_get_name(const falcon_object_t *object);
-inline gboolean falcon_object_isdir(const falcon_object_t *object);
-inline void falcon_object_set_mode(falcon_object_t *object, mode_t mode);
-inline guint64 falcon_object_get_size(const falcon_object_t *object);
-inline void falcon_object_set_size(falcon_object_t *object, guint64 size);
-inline guint64 falcon_object_get_time(const falcon_object_t *object);
-inline void falcon_object_set_time(falcon_object_t *object, guint64 time);
-inline gboolean falcon_object_get_watch(const falcon_object_t *object);
-inline void falcon_object_set_watch(falcon_object_t *object, gboolean watch);
+void falcon_object_set_mode(falcon_object_t *object, mode_t mode);
+void falcon_object_set_size(falcon_object_t *object, guint64 size);
+void falcon_object_set_time(falcon_object_t *object, guint64 time);
+void falcon_object_set_watch(falcon_object_t *object, gboolean watch);
 
 #endif

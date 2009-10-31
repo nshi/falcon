@@ -38,8 +38,7 @@ void falcon_cache_free(falcon_cache_t *cache);
 /*
  * Gets the object with the given name. If the object is not found, return NULL.
  */
-inline falcon_object_t *falcon_cache_get(falcon_cache_t *cache,
-                                         const gchar *name);
+falcon_object_t *falcon_cache_get(falcon_cache_t *cache, const gchar *name);
 /*
  * Adds an object to the cache. If another object with the same name exists, the
  * old one is updated with the new one.
@@ -60,6 +59,6 @@ void falcon_cache_foreach_descendant(falcon_cache_t *cache, const gchar *name,
 gboolean falcon_cache_load(falcon_cache_t *cache, const gchar *name);
 gboolean falcon_cache_save(const falcon_cache_t *cache, const gchar *name);
 
-inline void falcon_cache_print(const falcon_cache_t *cache);
+void falcon_cache_print(const falcon_cache_t *cache);
 
 #endif

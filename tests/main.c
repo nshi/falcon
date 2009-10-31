@@ -1,28 +1,23 @@
 #include <glib.h>
 #include <signal.h>
 
-#include "falcon.h"
-#include "handler.h"
-#include "object.h"
-#include "events.h"
-#include "common.h"
-#include "filter.h"
+#include "include/falcon.h"
 
 GMainLoop *ml = NULL;
 
 gboolean test_handler(falcon_object_t *object, falcon_event_code_t event,
-                      gpointer userdata ATTRIBUTE_UNUSED) {
+                      gpointer userdata __attribute__((unused))) {
 	g_message("custom handler: %s->%s",
 	          falcon_object_get_name(object), falcon_event_to_string(event));
 	return TRUE;
 }
 
-void ex(int sig ATTRIBUTE_UNUSED)
+void ex(int sig __attribute__((unused)))
 {
 	g_main_loop_quit(ml);
 }
 
-int main(int argc ATTRIBUTE_UNUSED, char **argv)
+int main(int argc __attribute__((unused)), char **argv)
 {
 	g_thread_init(NULL);
 	falcon_init("cache.dat");

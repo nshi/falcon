@@ -24,7 +24,7 @@
 
 #include <glib.h>
 
-#include "events.h"
+#include "include/falcon.h"
 
 const gchar *falcon_event_to_string(falcon_event_code_t event)
 {

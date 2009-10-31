@@ -28,13 +28,6 @@
 #include "common.h"
 #include "object.h"
 
-typedef gboolean (*falcon_filter_func)(falcon_object_t *object);
-
-gboolean falcon_filter_register(gboolean is_dir, const gchar *pattern,
-                                falcon_filter_func func);
-gboolean falcon_filter_unregister(gboolean is_dir, const gchar *pattern,
-                                  falcon_filter_func func);
-
 /*
  * This should be called at startup.
  */

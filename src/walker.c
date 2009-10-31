@@ -28,7 +28,6 @@
 #include <glib/gstdio.h>
 
 #include "walker.h"
-#include "events.h"
 #include "falcon.h"
 #include "handler.h"
 #include "watcher.h"
