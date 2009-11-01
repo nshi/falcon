@@ -314,7 +314,12 @@ gboolean falcon_cache_save(const falcon_cache_t *cache, const gchar *name)
 
 	g_mutex_lock(cache->lock);
 	count = GUINT64_TO_BE(cache->count);
-	write(fd, &count, 8);
+	if (write(fd, &count, 8) == -1) {
+		g_critical(_("Failed to write to file %s: %s"), name, g_strerror(errno));
+		g_mutex_unlock(cache->lock);
+		close(fd);
+		return FALSE;
+	}
 	trie_foreach(cache->objects, falcon_object_save, GINT_TO_POINTER(fd));
 	g_mutex_unlock(cache->lock);
 	close(fd);
